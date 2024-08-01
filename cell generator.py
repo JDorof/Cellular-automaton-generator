@@ -31,4 +31,4 @@ for i in range (201):
 
 
 im.putdata([white if i == 1 else black for row in new_field for i in row])
-im.save(f'cells generator/picture.png')
+im.save(f'results/picture.png')
