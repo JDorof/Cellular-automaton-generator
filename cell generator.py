@@ -19,9 +19,7 @@ number_list = [0, 0, 0, 1, 1]
 field = np.array([number_list[randint(0, len(number_list) - 1)] for x in range(heigth * width)]).reshape(width, heigth)
 new_field = field.copy()
 
-for i in range (201):
-
-    print(f"i={i}", end=" ")
+for i in range(201):
 
     for x in range(width):
         for y in range(heigth):
