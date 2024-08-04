@@ -3,9 +3,19 @@ import rules
 import numpy as np
 from random import randint
 
-field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for x in range(rules.height * rules.width)]).reshape(rules.width, rules.height)
+# field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for x in range(rules.height * rules.width)]).reshape(rules.width, rules.height)
 
-def Neighborhood(x0, y0, cell_type, neighborhood_type):
+def Shuffle_field(field, cell_type: list, field_type: list, chance: int):
+    for y in range(rules.height):
+        for x in range(rules.width):
+            if field[y][x] in field_type and randint(1, 10) <= chance:
+                field[y][x] = cell_type[randint(0, len(cell_type) - 1)]
+    return field
+
+def Blur(field, ):
+    pass
+
+def Neighborhood(field, x0: int, y0: int, cell_type: int, neighborhood_type):
 
     '''Число соседей определенного типа (cell_type) в окрестности (neighborhood_type) у заданной клетки'''
 
@@ -18,22 +28,37 @@ def Neighborhood(x0, y0, cell_type, neighborhood_type):
                 counter += 1
     return counter
 
-def Generate():
-
-    global  field
+def Generate(field, cell_type: int, field_type: int, iterations: int, neighborhood_type):
 
     new_field = field.copy()
 
-    for i in range(rules.iteratons):
+    for i in range(iterations):
         for y in range(rules.height):
             for x in range(rules.width):
-                match field[y][x]:
-                    case 0:
-                        if Neighborhood(x, y, 9, rules.moore_neighborhood) in rules.Birth[9]:
-                            new_field[y][x] = 9
-                    case 9:
-                        if Neighborhood(x, y, 9, rules.moore_neighborhood) not in rules.Survive[9]:
-                            new_field[y][x] = 0
+
+                # pass
+
+# Рабочий вариант, но костыль, который будет неправильно работать не в "День и ночь"
+
+                if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Birth[cell_type]:
+                        new_field[y][x] = cell_type
+                elif field[y][x] == cell_type:
+                    if Neighborhood(field, x, y, field_type, neighborhood_type) in rules.Birth[cell_type]:
+                        new_field[y][x] = field_type
+
+# Полурабочий вариант, так как выдает много меньше нужного cell_type клеток
+
+                # if field[y][x] ==  field_type:
+                #     if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Birth[cell_type]:
+                #         new_field[y][x] = cell_type
+                #     else:
+                #         new_field[y][x] = field_type
+                # elif field[y][x] == cell_type:
+                #     if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Survive[cell_type]:
+                #         new_field[y][x] = cell_type
+                #     else:
+                #         new_field[y][x] = field_type
+
         field = new_field.copy()
 
     return field
