@@ -11,8 +11,10 @@ import rules
 import Generator
 
 im = Image.new('RGB', (rules.width, rules.height))
+im2 = Image.new('RGB', (rules.width + 2, rules.height + 2))
+im3 = Image.new('RGB', (rules.width, rules.height))
 
-field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for x in range(rules.height * rules.width)]).reshape(rules.width, rules.height)
+field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for x in range(rules.height * rules.width)], dtype="int32").reshape(rules.width, rules.height)
 
 '''крч идея сделать градиенты, а все расчеты проводить с numpy с числами от 0 до 9, или другой диапозон.
 Потом, в зависимости от числа подставлять в финальную картинку тот или иной цвет''' # TODO

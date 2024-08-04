@@ -1,8 +1,8 @@
 import gradients
 
 '''Image'''
-height = 200
-width = 200
+height = 50
+width = 50
 
 '''Colors'''
 counter = 10
@@ -25,14 +25,14 @@ vertical = [[-1, 0], [1, 0]]
 
 '''Rules'''
 Birth = {
-    9 : [3, 6, 7, 8], # day and night
-    8 : [3, 6, 7, 8], # day and night
-    0 : [3, 6, 7, 8] # day and night
+    9 : [3, 6, 7, 8], # day and night for moore
+    8 : [3, 6, 7, 8], # day and night for moore
+    0 : [3, 6, 7, 8] # day and night for moore
 }
 Survive = {
-    9 : [3, 4, 6, 7, 8], # day and night
-    8 : [3, 4, 6, 7, 8], # day and night
-    0 : [3, 4, 6, 7, 8] # day and night
+    9 : [3, 4, 6, 7, 8], # day and night for moore
+    8 : [3, 4, 6, 7, 8], # day and night for moore
+    0 : [3, 4, 6, 7, 8] # day and night for moore
 }
 
 # '''Generation'''

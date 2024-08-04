@@ -12,8 +12,33 @@ def Shuffle_field(field, cell_type: list, field_type: list, chance: int):
                 field[y][x] = cell_type[randint(0, len(cell_type) - 1)]
     return field
 
-def Blur(field, ):
-    pass
+def NarrowingTheField(new_field):
+    field = np.zeros((rules.height, rules.width), dtype="int32")
+    for y in range(rules.height):
+        for x in range(rules.width):
+            field[y][x] = new_field[y + 1][x + 1]
+    return field
+
+
+def FieldExpansion(field):
+    new_field = np.zeros((rules.height + 2, rules.width + 2), dtype="int32")
+    for y in range(rules.height):
+        new_field[y + 1][0] = field[y][0]
+        new_field[y + 1][rules.width + 1] = field[y][rules.width - 1]
+        for x in range(rules.width):
+            new_field[y + 1][x + 1] = field[y][x]
+    for x in range(rules.width):
+        new_field[0][x + 1] = field[0][x]
+        new_field[rules.height + 1][x + 1] = field[rules.height - 1][x]
+    new_field[0][0] = field[0][0]
+    new_field[0][rules.width + 1] = field[0][rules.width - 1]
+    new_field[rules.height + 1][0] = field[rules.height - 1][0]
+    new_field[rules.height + 1][rules.width + 1] = field[rules.height - 1][rules.width - 1]
+    return new_field
+
+def Blur(field):
+    
+    
 
 def Neighborhood(field, x0: int, y0: int, cell_type: int, neighborhood_type):
 
