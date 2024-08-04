@@ -1,15 +1,17 @@
 import gradients
 
 '''Image'''
-height = 50
-width = 50
+height = 250
+width = 250
 
 '''Colors'''
 counter = 10
 chances = [0, 9]
 gradient = gradients.ocean_beach_forest
+# gradient = gradients.black_to_white
 
 '''Neighborhoods'''
+standart3x3 = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 0], [0, 1], [1, -1], [1, 0], [1, 1]]
 moore_neighborhood_1order = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
 
 moore_neighborhood_2order = [[-2, -2], [-2, -1], [-2, 0], [-2, 1], [-2, 2],

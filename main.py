@@ -16,8 +16,7 @@ im3 = Image.new('RGB', (rules.width, rules.height))
 
 field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for x in range(rules.height * rules.width)], dtype="int32").reshape(rules.width, rules.height)
 
-'''крч идея сделать градиенты, а все расчеты проводить с numpy с числами от 0 до 9, или другой диапозон.
-Потом, в зависимости от числа подставлять в финальную картинку тот или иной цвет''' # TODO
+'''Сделать маштабируемый блюр и расширение спрайта''' # TODO
 
 # for i in range(3):
 #     for y in range(height):
@@ -42,6 +41,16 @@ field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for x in ran
 field = Generator.Generate(field, 9, 0, 200, rules.moore_neighborhood_1order)
 # field = Generator.Shuffle_field(field, [8], [9], 5)
 # field = Generator.Generate(field, 8, 9, 150, rules.moore_neighborhood_1order)
+field = Generator.Blur(field)
+field = Generator.Blur(field)
+field = Generator.Blur(field)
+field = Generator.Blur(field)
+field = Generator.Blur(field)
+# field = Generator.Shuffle_field(field, [8], [9], 4)
+
+field = Generator.Generate(field, 8, 9, 25, rules.moore_neighborhood_1order)
+field = Generator.Blur(field)
+
 
 result = list(field.reshape(rules.height*rules.width))
 print(f'{result.count(9) = }')

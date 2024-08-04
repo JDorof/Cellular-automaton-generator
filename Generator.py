@@ -5,6 +5,7 @@ from random import randint
 
 # field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for x in range(rules.height * rules.width)]).reshape(rules.width, rules.height)
 
+
 def Shuffle_field(field, cell_type: list, field_type: list, chance: int):
     for y in range(rules.height):
         for x in range(rules.width):
@@ -12,12 +13,13 @@ def Shuffle_field(field, cell_type: list, field_type: list, chance: int):
                 field[y][x] = cell_type[randint(0, len(cell_type) - 1)]
     return field
 
-def NarrowingTheField(new_field):
-    field = np.zeros((rules.height, rules.width), dtype="int32")
-    for y in range(rules.height):
-        for x in range(rules.width):
-            field[y][x] = new_field[y + 1][x + 1]
-    return field
+
+# def NarrowingTheField(new_field):
+#     field = np.zeros((rules.height, rules.width), dtype="int32")
+#     for y in range(rules.height):
+#         for x in range(rules.width):
+#             field[y][x] = new_field[y + 1][x + 1]
+#     return field
 
 
 def FieldExpansion(field):
@@ -36,9 +38,35 @@ def FieldExpansion(field):
     new_field[rules.height + 1][rules.width + 1] = field[rules.height - 1][rules.width - 1]
     return new_field
 
-def Blur(field):
+
+def Blur(field, StDev=3 ): #StDev - размер матрицы
     
+    # blur_matrix = [[
+    #     [0.000789, 0.006581, 0.013347, 0.006581, 0.000789],
+    #     [0.006581, 0.054901, 0.111345, 0.054901, 0.006581],
+    #     [0.013347, 0.111345, 0.225821, 0.111345, 0.013347],
+    #     [0.006581, 0.054901, 0.111345, 0.054901, 0.006581],
+    #     [0.000789, 0.006581, 0.013347, 0.006581, 0.000789]
+    # ]]
     
+    blur_matrix = [
+        [0.0625, 0.125, 0.0625],
+        [0.125, 0.25, 0.125],
+        [0.0625, 0.125, 0.0625]
+    ]
+
+    extended_field = FieldExpansion(field)
+    new_field = np.zeros((rules.height, rules.width), dtype="int32")
+
+    for y0 in range(rules.height):
+        for x0 in range(rules.width):
+            counter = 0
+            for y, x in rules.standart3x3:
+                counter += extended_field[y0 + y + 1][x0 + x + 1] * blur_matrix[y + 1][x + 1]
+            new_field[y0][x0] = int(counter)
+    
+    return new_field
+
 
 def Neighborhood(field, x0: int, y0: int, cell_type: int, neighborhood_type):
 
@@ -55,37 +83,31 @@ def Neighborhood(field, x0: int, y0: int, cell_type: int, neighborhood_type):
 
 def Generate(field, cell_type: int, field_type: int, iterations: int, neighborhood_type):
 
-    new_field = field.copy()
+    ''''''
 
+    new_field = field.copy()
     for i in range(iterations):
         for y in range(rules.height):
             for x in range(rules.width):
-
-                # pass
-
-# Рабочий вариант, но костыль, который будет неправильно работать не в "День и ночь"
-
-                if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Birth[cell_type]:
-                        new_field[y][x] = cell_type
-                elif field[y][x] == cell_type:
-                    if Neighborhood(field, x, y, field_type, neighborhood_type) in rules.Birth[cell_type]:
-                        new_field[y][x] = field_type
-
-# Полурабочий вариант, так как выдает много меньше нужного cell_type клеток
-
-                # if field[y][x] ==  field_type:
-                #     if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Birth[cell_type]:
-                #         new_field[y][x] = cell_type
-                #     else:
-                #         new_field[y][x] = field_type
-                # elif field[y][x] == cell_type:
-                #     if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Survive[cell_type]:
-                #         new_field[y][x] = cell_type
-                #     else:
-                #         new_field[y][x] = field_type
-
+                if field[y][x] in [cell_type, field_type]:
+    # Рабочий вариант, но костыль, который будет неправильно работать не в "День и ночь"
+                    if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Birth[cell_type]:
+                            new_field[y][x] = cell_type
+                    elif field[y][x] == cell_type:
+                        if Neighborhood(field, x, y, field_type, neighborhood_type) in rules.Birth[cell_type]:
+                            new_field[y][x] = field_type
+    # Полурабочий вариант, так как выдает много меньше нужного cell_type клеток
+                    # if field[y][x] ==  field_type:
+                    #     if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Birth[cell_type]:
+                    #         new_field[y][x] = cell_type
+                    #     else:
+                    #         new_field[y][x] = field_type
+                    # elif field[y][x] == cell_type:
+                    #     if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Survive[cell_type]:
+                    #         new_field[y][x] = cell_type
+                    #     else:
+                    #         new_field[y][x] = field_type
         field = new_field.copy()
-
     return field
                     
                 
