@@ -41,15 +41,14 @@ field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for x in ran
 field = Generator.Generate(field, 9, 0, 200, rules.moore_neighborhood_1order)
 # field = Generator.Shuffle_field(field, [8], [9], 5)
 # field = Generator.Generate(field, 8, 9, 150, rules.moore_neighborhood_1order)
-field = Generator.Blur(field)
-field = Generator.Blur(field)
-field = Generator.Blur(field)
-field = Generator.Blur(field)
-field = Generator.Blur(field)
+for i in range(2):
+    field = Generator.Blur(field, blur_type=rules.blur_cross)
+    field = Generator.Blur(field, blur_type=rules.blur_3x3)
+
 # field = Generator.Shuffle_field(field, [8], [9], 4)
 
 field = Generator.Generate(field, 8, 9, 25, rules.moore_neighborhood_1order)
-field = Generator.Blur(field)
+field = Generator.Blur(field, blur_type=rules.blur_cross)
 
 
 result = list(field.reshape(rules.height*rules.width))

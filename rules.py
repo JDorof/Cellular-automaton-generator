@@ -1,8 +1,8 @@
 import gradients
 
 '''Image'''
-height = 250
-width = 250
+height = 100
+width = 100
 
 '''Colors'''
 counter = 10
@@ -36,6 +36,22 @@ Survive = {
     8 : [3, 4, 6, 7, 8], # day and night for moore
     0 : [3, 4, 6, 7, 8] # day and night for moore
 }
+
+'''Blur types''' # сумма всех элементов должа быть равна 1
+blur_3x3 = [
+        [0.0625, 0.125, 0.0625],
+        [0.125, 0.25, 0.125],
+        [0.0625, 0.125, 0.0625]
+    ]
+
+blur_cross = [
+        [0.15, 0.0, 0.15],
+        [0.0, 0.4, 0.0],
+        [0.15, 0.0, 0.15]
+    ]
+
+
+
 
 # '''Generation'''
 # iteratons = 250

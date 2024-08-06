@@ -39,7 +39,7 @@ def FieldExpansion(field):
     return new_field
 
 
-def Blur(field, StDev=3 ): #StDev - размер матрицы
+def Blur(field, blur_type=rules.blur_3x3, field_types=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]): 
     
     # blur_matrix = [[
     #     [0.000789, 0.006581, 0.013347, 0.006581, 0.000789],
@@ -49,17 +49,14 @@ def Blur(field, StDev=3 ): #StDev - размер матрицы
     #     [0.000789, 0.006581, 0.013347, 0.006581, 0.000789]
     # ]]
     
-    blur_matrix = [
-        [0.0625, 0.125, 0.0625],
-        [0.125, 0.25, 0.125],
-        [0.0625, 0.125, 0.0625]
-    ]
+    blur_matrix = blur_type
 
     extended_field = FieldExpansion(field)
     new_field = np.zeros((rules.height, rules.width), dtype="int32")
 
     for y0 in range(rules.height):
         for x0 in range(rules.width):
+            if not (field[y0][x0] in field_types): continue
             counter = 0
             for y, x in rules.standart3x3:
                 counter += extended_field[y0 + y + 1][x0 + x + 1] * blur_matrix[y + 1][x + 1]
