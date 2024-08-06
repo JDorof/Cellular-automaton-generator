@@ -1,4 +1,5 @@
 import rules
+import blur_types
 
 import numpy as np
 from random import randint
@@ -6,10 +7,10 @@ from random import randint
 # field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for x in range(rules.height * rules.width)]).reshape(rules.width, rules.height)
 
 
-def Shuffle_field(field, cell_type: list, field_type: list, chance: int):
+def Shuffle_field(field, cell_type: list, field_type: set, chance: int):
     for y in range(rules.height):
         for x in range(rules.width):
-            if field[y][x] in field_type and randint(1, 10) <= chance:
+            if field[y][x] in field_type and randint(1, 10) <= chance: # maybe 100?
                 field[y][x] = cell_type[randint(0, len(cell_type) - 1)]
     return field
 
@@ -39,9 +40,9 @@ def FieldExpansion(field):
     return new_field
 
 
-def Blur(field, blur_type=rules.blur_3x3, field_types=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]): 
+def Blur(field, blur_type=blur_types.standart_3x3, field_types={1, 2, 3, 4, 5, 6, 7, 8, 9, 10}): 
     
-    # blur_matrix = [[
+    # blur_matrix = [[ # 5x5
     #     [0.000789, 0.006581, 0.013347, 0.006581, 0.000789],
     #     [0.006581, 0.054901, 0.111345, 0.054901, 0.006581],
     #     [0.013347, 0.111345, 0.225821, 0.111345, 0.013347],
@@ -56,7 +57,9 @@ def Blur(field, blur_type=rules.blur_3x3, field_types=[0, 1, 2, 3, 4, 5, 6, 7, 8
 
     for y0 in range(rules.height):
         for x0 in range(rules.width):
-            if not (field[y0][x0] in field_types): continue
+            if field[y0][x0] not in field_types:
+                new_field[y0][x0] = field[y0][x0]
+                continue
             counter = 0
             for y, x in rules.standart3x3:
                 counter += extended_field[y0 + y + 1][x0 + x + 1] * blur_matrix[y + 1][x + 1]
@@ -86,7 +89,7 @@ def Generate(field, cell_type: int, field_type: int, iterations: int, neighborho
     for i in range(iterations):
         for y in range(rules.height):
             for x in range(rules.width):
-                if field[y][x] in [cell_type, field_type]:
+                if field[y][x] in {cell_type, field_type}:
     # Рабочий вариант, но костыль, который будет неправильно работать не в "День и ночь"
                     if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Birth[cell_type]:
                             new_field[y][x] = cell_type
