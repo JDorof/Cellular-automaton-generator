@@ -7,15 +7,19 @@ from random import randint
 # field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for x in range(rules.height * rules.width)]).reshape(rules.width, rules.height)
 
 
-def Shuffle_field(field, cell_type: list, field_type: set, chance: int):
+def Shuffle_field(field: np.ndarray, cell_type: list, field_types: set, chance: int):
+
+    '''Функция случайного создания элементов типов, указанных в {cell_type}, на поле из элементов, указанных в {field_types}, с шансом {chance} (от 0 до 10)'''
+
     for y in range(rules.height):
         for x in range(rules.width):
-            if field[y][x] in field_type and randint(1, 10) <= chance: # maybe 100?
+            if field[y][x] in field_types and randint(1, 10) <= chance: # maybe 100?
                 field[y][x] = cell_type[randint(0, len(cell_type) - 1)]
     return field
 
 
 # def NarrowingTheField(new_field):
+#     '''Функция для сужения поля чисел на 1 элемент с каждой стороны'''
 #     field = np.zeros((rules.height, rules.width), dtype="int32")
 #     for y in range(rules.height):
 #         for x in range(rules.width):
@@ -23,7 +27,10 @@ def Shuffle_field(field, cell_type: list, field_type: set, chance: int):
 #     return field
 
 
-def FieldExpansion(field):
+def FieldExpansion(field: np.ndarray):
+
+    '''Функция для расширения поля чисел на 1 элемент с каждой стороны'''
+
     new_field = np.zeros((rules.height + 2, rules.width + 2), dtype="int32")
     for y in range(rules.height):
         new_field[y + 1][0] = field[y][0]
@@ -40,8 +47,10 @@ def FieldExpansion(field):
     return new_field
 
 
-def Blur(field, blur_type=blur_types.standart, field_types={1, 2, 3, 4, 5, 6, 7, 8, 9, 10}): 
+def Blur(field: np.ndarray, blur_type=blur_types.standart, field_types={1, 2, 3, 4, 5, 6, 7, 8, 9, 10}): 
     
+    '''Функция для размытия поля чисел'''
+
     # blur_matrix = [[ # 5x5
     #     [0.000789, 0.006581, 0.013347, 0.006581, 0.000789],
     #     [0.006581, 0.054901, 0.111345, 0.054901, 0.006581],
@@ -68,9 +77,9 @@ def Blur(field, blur_type=blur_types.standart, field_types={1, 2, 3, 4, 5, 6, 7,
     return new_field
 
 
-def Neighborhood(field, x0: int, y0: int, cell_type: int, neighborhood_type):
+def Neighborhood(field: np.ndarray, x0: int, y0: int, cell_type: int, neighborhood_type):
 
-    '''Число соседей определенного типа (cell_type) в окрестности (neighborhood_type) у заданной клетки'''
+    '''Функция для подсчёта числа соседей определенного типа (cell_type) в окрестности (neighborhood_type) у заданной клетки'''
 
     counter = 0
     for y, x in neighborhood_type:
@@ -81,9 +90,9 @@ def Neighborhood(field, x0: int, y0: int, cell_type: int, neighborhood_type):
                 counter += 1
     return counter
 
-def Generate(field, cell_type: int, field_type: int, iterations: int, neighborhood_type):
+def Generate(field: np.ndarray, cell_type: int, field_type: int, iterations: int, neighborhood_type):
 
-    ''''''
+    '''Функция генерации клеточного автомата'''
 
     new_field = field.copy()
     for i in range(iterations):
@@ -110,11 +119,3 @@ def Generate(field, cell_type: int, field_type: int, iterations: int, neighborho
         field = new_field.copy()
     return field
                     
-                
-                    
-
-
-
-
-
-# field = np.array([number_list[randint(0, len(number_list) - 1)] for x in range(height * width)]).reshape(width, height)

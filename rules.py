@@ -4,6 +4,7 @@ import gradients
 height = 150
 width = 150
 
+
 '''Colors'''
 counter = 10
 chances = [1, 10]
@@ -53,7 +54,3 @@ Survive = {
     1 : [3, 4, 6, 7, 8], # day and night for moore
 }
 
-
-
-# '''Generation'''
-# iteratons = 250
