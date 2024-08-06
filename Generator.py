@@ -40,7 +40,7 @@ def FieldExpansion(field):
     return new_field
 
 
-def Blur(field, blur_type=blur_types.standart_3x3, field_types={1, 2, 3, 4, 5, 6, 7, 8, 9, 10}): 
+def Blur(field, blur_type=blur_types.standart, field_types={1, 2, 3, 4, 5, 6, 7, 8, 9, 10}): 
     
     # blur_matrix = [[ # 5x5
     #     [0.000789, 0.006581, 0.013347, 0.006581, 0.000789],
