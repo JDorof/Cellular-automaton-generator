@@ -1,8 +1,8 @@
 import gradients
 
 '''Image'''
-height = 100
-width = 100
+height = 150
+width = 150
 
 '''Colors'''
 counter = 10
@@ -39,6 +39,7 @@ Birth = {
     2 : [3, 6, 7, 8], # day and night for moore
     1 : [3, 6, 7, 8], # day and night for moore
 }
+
 Survive = {
     10 : [3, 4, 6, 7, 8], # day and night for moore
     9 : [3, 4, 6, 7, 8], # day and night for moore
@@ -51,9 +52,6 @@ Survive = {
     2 : [3, 4, 6, 7, 8], # day and night for moore
     1 : [3, 4, 6, 7, 8], # day and night for moore
 }
-
-
-
 
 
 

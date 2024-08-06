@@ -53,7 +53,7 @@ def Blur(field, blur_type=blur_types.standart, field_types={1, 2, 3, 4, 5, 6, 7,
     blur_matrix = blur_type
 
     extended_field = FieldExpansion(field)
-    new_field = np.zeros((rules.height, rules.width), dtype="int32")
+    new_field = np.ones((rules.height, rules.width), dtype="int32")
 
     for y0 in range(rules.height):
         for x0 in range(rules.width):
