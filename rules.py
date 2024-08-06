@@ -1,41 +1,56 @@
-'''Переписать правила в виде B3/S23, где B - birth, S - survive''' # TODO
+import gradients
 
-import values
-
-def AliveInMooreNeighborhood(x0, y0, field, width, heigth, cell_type):
-
-    '''Число такого же типа (cell_type) соседей в окрестности Мура у заданной клетки'''
-
-    counter = 0
-    for x in range(x0 - 1, x0 + 2):
-        for y in range(y0 - 1, y0 + 2):
-            if x0 == x and y0 == y: continue
-            if x < 0 or x >= width or y < 0 or y >= heigth: continue
-            if field[y][x] == cell_type:
-                counter += 1
-    return counter
+'''Image'''
+height = 150
+width = 150
 
 
-def GameLife(x, y, field, new_field, width, heigth, cell_type):
+'''Colors'''
+counter = 10
+chances = [1, 10]
+gradient = gradients.black_orange_yellow_white
+# gradient = gradients.ocean_beach_forest
+# gradient = gradients.black_to_white
 
-    '''Правило <<Игра жизнь>>. B3/S32'''
+'''Neighborhoods'''
+standart3x3 = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 0], [0, 1], [1, -1], [1, 0], [1, 1]]
+moore_neighborhood_1order = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
 
-    if AliveInMooreNeighborhood(x, y, field, width, heigth, cell_type) == 3:
-        new_field[y][x] = 1
-    elif AliveInMooreNeighborhood(x, y, field, width, heigth, cell_type) == 2 and field[y][x] == 1:
-        new_field[y][x] == 1
-    else:
-        new_field[y][x] = 0
+moore_neighborhood_2order = [[-2, -2], [-2, -1], [-2, 0], [-2, 1], [-2, 2],
+                             [-1, -2], [-1, -1], [-1, 0], [-1, 1], [-1, 2],
+                             [0, -2], [0, -1], [0, 1], [0, 2],
+                             [1, -2], [1, -1], [1, 0], [1, 1], [1, 2],
+                             [2, -2], [2, -1], [2, 0], [2, 1], [2, 2]]
 
+plus = [[-1, 0], [0, -1], [0, 1], [1, 0]]
+cross = [[-1, -1], [-1, 1], [1, -1], [1, 1]]
+horizontal = [[0, -1], [0, 1]]
+vertical = [[-1, 0], [1, 0]]
 
-def DayAndNight(x, y, field, new_field, width, heigth, cell_type):
-    
-    '''Правило <<День и ночь>>. B3678/S34678'''
+'''Rules'''
+Birth = {
+    10 : [3, 6, 7, 8], # day and night for moore
+    9 : [3, 6, 7, 8], # day and night for moore
+    8 : [3, 6, 7, 8], # day and night for moore
+    7 : [3, 6, 7, 8], # day and night for moore
+    6 : [3, 6, 7, 8], # day and night for moore
+    5 : [3, 6, 7, 8], # day and night for moore
+    4 : [3, 6, 7, 8], # day and night for moore
+    3 : [3, 6, 7, 8], # day and night for moore
+    2 : [3, 6, 7, 8], # day and night for moore
+    1 : [3, 6, 7, 8], # day and night for moore
+}
 
-    if AliveInMooreNeighborhood(x, y, field, width, heigth, cell_type) in [3, 6, 7, 8]:
-        new_field[y][x] = 1
-    elif AliveInMooreNeighborhood(x, y, field, width, heigth, cell_type) in [3, 4, 6, 7, 8] and field[y][x] == 1:
-        new_field[y][x] = 1
-    else:
+Survive = {
+    10 : [3, 4, 6, 7, 8], # day and night for moore
+    9 : [3, 4, 6, 7, 8], # day and night for moore
+    8 : [3, 4, 6, 7, 8], # day and night for moore
+    7 : [3, 4, 6, 7, 8], # day and night for moore
+    6 : [3, 4, 6, 7, 8], # day and night for moore
+    5 : [3, 4, 6, 7, 8], # day and night for moore
+    4 : [3, 4, 6, 7, 8], # day and night for moore
+    3 : [3, 4, 6, 7, 8], # day and night for moore
+    2 : [3, 4, 6, 7, 8], # day and night for moore
+    1 : [3, 4, 6, 7, 8], # day and night for moore
+}
 
-        new_field[y][x] = 0
