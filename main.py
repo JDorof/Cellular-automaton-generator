@@ -1,3 +1,9 @@
+import Generator
+import blur_types
+import rules
+from random import randint, choice
+import numpy as np
+from PIL import Image
 import time
 
 start = time.time()
@@ -13,14 +19,8 @@ start = time.time()
 '''Генератор градиентов (левый, правый) (словарик индекс:цвет)'''
 # from random import choice TODO
 
-from PIL import Image
-import numpy as np
-from random import randint
 
 # Связи с другими файлами
-import rules
-import blur_types
-import Generator
 
 '''Подготовка'''
 
@@ -28,11 +28,13 @@ im = Image.new('RGB', (rules.width, rules.height))
 # im2 = Image.new('RGB', (rules.width + 2, rules.height + 2))
 # im3 = Image.new('RGB', (rules.width, rules.height))
 
-field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for i in range(rules.height * rules.width)], dtype="int32").reshape(rules.width, rules.height)
+field = Generator.InitializeField(rules.chances, (rules.height, rules.width))
 
 '''Генерация'''
 
-field = Generator.Generate(field, 10, 1, 200, rules.moore_neighborhood_1order)
+field = Generator.RunAutomaton(
+    field, 10, 1, 200, rules.moore_neighborhood_1order
+)
 
 # for i in range(5):
 #     field = Generator.Blur(field, blur_type=blur_types.horizontal_cross)
@@ -45,13 +47,11 @@ field = Generator.Generate(field, 10, 1, 200, rules.moore_neighborhood_1order)
 #     field = Generator.Blur(field, blur_type=blur_types.outside_cross, field_types={8, 9, 10})
 
 
-
 # field = Generator.Shuffle_field(field, [3], {1}, 4)
 # field = Generator.Generate(field, 3, 1, 25, rules.moore_neighborhood_1order)
 
 # for i in range(1):
 #     field = Generator.Blur(field, blur_type=blur_types.outside_cross, field_types={1, 2, 3})
-
 
 
 '''Сохранение результата и вывод кол-ва каждого типа клеток'''
