@@ -2,8 +2,8 @@ import gradients
 import numpy as np
 
 '''Image'''
-height = 1000
-width = 1000
+height = 200
+width = 200
 
 
 '''Colors'''
