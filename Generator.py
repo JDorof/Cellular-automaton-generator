@@ -9,7 +9,9 @@ from random import randint
 
 
 def Shuffle_field(field: np.ndarray, cell_type: list, field_types: set, chance: int):
-    '''Функция случайного создания элементов типов, указанных в {cell_type}, на поле из элементов, указанных в {field_types}, с шансом {chance} (от 0 до 10)'''
+    '''
+    Функция случайного создания элементов типов, указанных в {cell_type}, на поле из элементов, указанных в {field_types}, с шансом {chance} (от 0 до 10)
+    '''
 
     for y in range(rules.height):
         for x in range(rules.width):
@@ -19,17 +21,10 @@ def Shuffle_field(field: np.ndarray, cell_type: list, field_types: set, chance: 
     return field
 
 
-# def NarrowingTheField(new_field):
-#     '''Функция для сужения поля чисел на 1 элемент с каждой стороны'''
-#     field = np.zeros((rules.height, rules.width), dtype="int32")
-#     for y in range(rules.height):
-#         for x in range(rules.width):
-#             field[y][x] = new_field[y + 1][x + 1]
-#     return field
-
-
 def FieldExpansion(field: np.ndarray):
-    '''Функция для расширения поля чисел на 1 элемент с каждой стороны'''
+    '''
+    Функция для расширения поля чисел на 1 элемент с каждой стороны
+    '''
 
     new_field = np.zeros((rules.height + 2, rules.width + 2), dtype="int32")
     for y in range(rules.height):
@@ -48,8 +43,10 @@ def FieldExpansion(field: np.ndarray):
     return new_field
 
 
-def Blur(field: np.ndarray, blur_type=blur_types.standart, field_types={1, 2, 3, 4, 5, 6, 7, 8, 9, 10}):
-    '''Функция для размытия поля чисел'''
+def Blur(field: np.ndarray, blur_type=blur_types.standart, field_types={1, 2, 3, 4, 5, 6, 7, 8, 9, 10}): # ОПТИМИЗИРОВАТЬ ЧЕРЕЗ SCIPY TODO TODO TODO 
+    '''
+    Функция для размытия поля чисел
+    '''
 
     # blur_matrix = [[ # 5x5
     #     [0.000789, 0.006581, 0.013347, 0.006581, 0.000789],
@@ -79,25 +76,12 @@ def Blur(field: np.ndarray, blur_type=blur_types.standart, field_types={1, 2, 3,
     return new_field
 
 
-def Neighborhood(field: np.ndarray, x0: int, y0: int, cell_type: int, neighborhood_type):
-    '''Функция для подсчёта числа соседей определенного типа (cell_type) в окрестности (neighborhood_type) у заданной клетки'''
-
-    counter = 0
-    for y, x in neighborhood_type:
-        x += x0
-        y += y0
-        if x < 0 or x >= rules.width or y < 0 or y >= rules.height:
-            continue
-        if field[y][x] == cell_type:
-            counter += 1
-    return counter
-
 
 def InitializeField(chances, shape):
     return np.random.choice(chances, size=shape).astype("int32")
 
 
-def UpdateField(field: np.ndarray, cell_type: int, field_type: int, kernel: np.ndarray) -> None:
+def UpdateField(field: np.ndarray, cell_type: int, field_type: int, kernel: np.ndarray, boundary="fill") -> None:
     '''
     Обновление поля по заданным параметрам
 
@@ -120,7 +104,7 @@ def UpdateField(field: np.ndarray, cell_type: int, field_type: int, kernel: np.n
 
     cell_mask = (field == cell_type)
     neighbors = scipy.signal.convolve2d(
-        cell_mask, kernel, mode='same', boundary='wrap')
+        cell_mask, kernel, mode='same', boundary=boundary)
 
     # Применяем правила рождения и выживания
     birth_mask = (field == field_type) & \
@@ -138,7 +122,7 @@ def UpdateField(field: np.ndarray, cell_type: int, field_type: int, kernel: np.n
     return new_field
 
 
-def RunAutomaton(field: np.ndarray, cell_type: int, field_type: int, iterations: int, kernel: np.ndarray) -> None:
+def RunAutomaton(field: np.ndarray, cell_type: int, field_type: int, iterations: int, kernel: np.ndarray, boundary="fill") -> None:
     '''
     Запуск клеточного автомата.
 
@@ -157,22 +141,27 @@ def RunAutomaton(field: np.ndarray, cell_type: int, field_type: int, iterations:
         А точнее, квадратная матрица нечётных размеров,
         где единицей помечена клетка, которую стоит учитывать,
         а ноликом, которую не стоит учитывать.
+    boundary:
+        Правило, указывающее на способ обработки границы:
+            fill - дополняет входные массивы значением заполнения. (по умолчанию)
+            wrap - круговые граничные условия.
+            symm - симметричные граничные условия.
     '''
-    # import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt
 
-    # plt.figure(figsize=(6, 6))
-    # plt.ion()
+    plt.figure(figsize=(6, 6))
+    plt.ion()
     
     for _ in range(iterations):
-        # plt.imshow(field, cmap='tab10')
-        # plt.draw()
-        # plt.pause(0.001)
-        # plt.clf()
-        field = UpdateField(field, cell_type, field_type, kernel)
+        plt.imshow(field, cmap='tab10')
+        plt.draw()
+        plt.pause(0.001)
+        plt.clf()
+        field = UpdateField(field, cell_type, field_type, kernel, boundary=boundary)
     
-    # plt.ioff()
-    # plt.imshow(field, cmap='tab10')
-    # plt.show()
+    plt.ioff()
+    plt.imshow(field, cmap='tab10')
+    plt.show()
 
     return field
 

@@ -36,31 +36,8 @@ field = Generator.InitializeField(rules.chances, (rules.height, rules.width))
 
 
 field = Generator.RunAutomaton(
-    field, 10, 1, 200, rules.moore_neighborhood_1order
+    field, 10, 1, 200, rules.moore_neighborhood_1order, boundary="wrap"
 )
-
-
-for i in range(5):
-    field = Generator.Blur(field, blur_type=blur_types.standart, field_types={1, 2, 3, 4, 5, 6, 7, 8, 9})
-for i in range(5):
-    field = Generator.Blur(field, blur_type=blur_types.outside, field_types={1, 2, 2})
-
-# for i in range(10):
-    # field = Generator.Blur(field, blur_type=blur_types.clarity)
-
-
-# field = Generator.Shuffle_field(field, [9], {10}, 4)
-# field = Generator.Generate(field, 9, 10, 25, rules.moore_neighborhood_1order)
-
-# for i in range(2):
-#     field = Generator.Blur(field, blur_type=blur_types.outside_cross, field_types={8, 9, 10})
-
-
-# field = Generator.Shuffle_field(field, [3], {1}, 4)
-# field = Generator.Generate(field, 3, 1, 25, rules.moore_neighborhood_1order)
-
-# for i in range(1):
-#     field = Generator.Blur(field, blur_type=blur_types.outside_cross, field_types={1, 2, 3})
 
 
 '''Сохранение результата и вывод кол-ва каждого типа клеток'''
