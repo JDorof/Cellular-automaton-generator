@@ -6,9 +6,9 @@
 ## Архитектура:
 
 
-\\-- gradients
+\-- gradients
 |   /* some gradient.png files */
-\\-- results
+\-- results
 |   /* some test results */
 +-- blur_types.py
 +-- Generator.py
@@ -17,7 +17,6 @@
 +-- README.md
 +-- rules.py
 +-- test.py
-
 
 
 Папка gradients - место, где хранятся png представления градиентов (1 на 10 пикселей png)
