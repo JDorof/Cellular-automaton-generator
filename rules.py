@@ -1,5 +1,6 @@
 import gradients
 import numpy as np
+import time
 
 '''Image'''
 '''
@@ -14,7 +15,8 @@ width = 100
 boundary = "wrap"
 # boundary = "fill"
 # boundary = "symm"
-seed = "aboba"
+# seed = str(time.time())
+seed = "aboab"
 
 '''Colors'''
 counter = 10

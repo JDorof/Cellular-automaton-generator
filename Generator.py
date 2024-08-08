@@ -3,8 +3,10 @@ import blur_types
 
 import numpy as np
 import scipy.signal
-from random import randint
+from random import randint, seed, random
 
+seed(a=rules.seed, version=2)
+np.random.seed(seed=randint(0, 2^32 - 1))
 
 def Shuffle_field(field: np.ndarray, cell_type: list, field_types: set, chance: int):
     '''Функция случайного создания элементов типов, указанных в {cell_type}, на поле из элементов, указанных в {field_types}, с шансом {chance} (от 0 до 10)'''

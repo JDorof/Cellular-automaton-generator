@@ -2,7 +2,7 @@ import Generator
 import blur_types
 import rules
 
-from random import randint, choice, seed
+# import random
 # import numpy as np
 from PIL import Image
 import time
@@ -20,8 +20,8 @@ import time
 
 start = time.time()
 
-# seed(a=None, version=2)
-seed(a=rules.seed, version=2)
+
+print(f'{rules.seed = }')
 
 im = Image.new('RGB', (rules.width, rules.height))
 # im2 = Image.new('RGB', (rules.width + 2, rules.height + 2))
@@ -29,15 +29,15 @@ im = Image.new('RGB', (rules.width, rules.height))
 
 field = Generator.InitializeField(rules.chances, (rules.height, rules.width))
 
-'''Генерация'''
 
+'''Генерация'''
 
 field = Generator.RunAutomaton(
     field, 10, 1, 200, rules.moore_neighborhood_1order
 )
 
 for i in range(5):
-    field = Generator.Blur(field, blur_type=blur_types.plus)
+    field = Generator.Blur(field, blur_type=blur_types.cross)
 
 
 '''Сохранение результата и вывод кол-ва каждого типа клеток'''
