@@ -1,8 +1,9 @@
 import gradients
+import numpy as np
 
 '''Image'''
-height = 100
-width = 100
+height = 1000
+width = 1000
 
 
 '''Colors'''
@@ -16,13 +17,11 @@ chances = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10]
 
 '''Neighborhoods'''
 standart3x3 = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 0], [0, 1], [1, -1], [1, 0], [1, 1]]
-moore_neighborhood_1order = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
+moore_neighborhood_1order = np.ones((3, 3), dtype=int)
+moore_neighborhood_1order[1, 1] = 0
 
-moore_neighborhood_2order = [[-2, -2], [-2, -1], [-2, 0], [-2, 1], [-2, 2],
-                             [-1, -2], [-1, -1], [-1, 0], [-1, 1], [-1, 2],
-                             [0, -2], [0, -1], [0, 1], [0, 2],
-                             [1, -2], [1, -1], [1, 0], [1, 1], [1, 2],
-                             [2, -2], [2, -1], [2, 0], [2, 1], [2, 2]]
+moore_neighborhood_2order = np.ones((5, 5), dtype=int)
+moore_neighborhood_2order[2, 2] = 0
 
 plus = [[-1, 0], [0, -1], [0, 1], [1, 0]]
 cross = [[-1, -1], [-1, 1], [1, -1], [1, 1]]
