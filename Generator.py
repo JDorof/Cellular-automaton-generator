@@ -3,10 +3,10 @@ import blur_types
 
 import numpy as np
 import scipy.signal
-from random import randint
+from random import randint, seed, random
 
-# field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for x in range(rules.height * rules.width)]).reshape(rules.width, rules.height)
-
+seed(a=rules.seed, version=2)
+np.random.seed(seed=randint(0, 2^32 - 1))
 
 def ReplaceCells(field: np.ndarray, replace: list, to: list, p: float = 1) -> np.ndarray:
     '''
@@ -45,6 +45,7 @@ def ReplaceCells(field: np.ndarray, replace: list, to: list, p: float = 1) -> np
 def Blur(field: np.ndarray, blur_type: np.ndarray, target_values: list = range(1, 11), iterations: int = 1) -> np.ndarray:
     '''
     Функция для размытия числового массива с сохранением значений, не входящих в список target_values.
+
 
     Параметры
     ---------

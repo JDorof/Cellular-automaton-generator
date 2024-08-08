@@ -1,32 +1,32 @@
 import Generator
 import blur_types
 import rules
+
 from PIL import Image
 import time
 
-start = time.time()
-
 # TODO
-'''Генератор через сиды, а не randint'''
+'''По окончании генератора сохранять код исполняемого файла, сид и тп в отдельный файл Лога, чтобы можно было повторить'''
+'''Вынести правила B*/S* в параметр функции Generate и убрать из rules'''
 '''Сделать маштабируемый блюр и расширение спрайта'''
-'''Сделать настройку на симметричность и в блюре и в генераторе'''
-'''Заранее выдать оценки по времени (время - этот компьютер, а в принципе сделать коэффициентом)'''
 '''Сделать отдельный фалй-интерфейс, в котором прописывать весь код'''
 '''Распихать файлы по папкам для удобства'''
 '''Логирование результата'''
 '''Генератор градиентов (левый, правый) (словарик индекс:цвет)'''
-# from random import choice TODO
-
-
-# Связи с другими файлами
 
 '''Подготовка'''
+
+start = time.time()
+
+
+print(f'{rules.seed = }')
 
 im = Image.new('RGB', (rules.width, rules.height))
 # im2 = Image.new('RGB', (rules.width + 2, rules.height + 2))
 # im3 = Image.new('RGB', (rules.width, rules.height))
 
 field = Generator.InitializeField(rules.chances, (rules.height, rules.width))
+
 
 '''Генерация'''
 
