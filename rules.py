@@ -8,9 +8,11 @@ width = 100
 '''Colors'''
 counter = 10
 gradient = gradients.black_orange_yellow_white
-chances = [1, 10]
 # gradient = gradients.ocean_beach_forest
+# gradient = gradients.forest_beach_ocean
 # gradient = gradients.black_to_white
+# gradient = gradients.white_to_black
+chances = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10]
 
 '''Neighborhoods'''
 standart3x3 = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 0], [0, 1], [1, -1], [1, 0], [1, 1]]
@@ -29,7 +31,7 @@ vertical = [[-1, 0], [1, 0]]
 
 '''Rules'''
 Birth = {
-    10 : [3, 6, 7, 8], # day and night for moore
+    10 : [2, 3, 4], # day and night for moore
     9 : [3, 6, 7, 8], # day and night for moore
     8 : [3, 6, 7, 8], # day and night for moore
     7 : [3, 6, 7, 8], # day and night for moore
@@ -38,7 +40,7 @@ Birth = {
     4 : [3, 6, 7, 8], # day and night for moore
     3 : [3, 6, 7, 8], # day and night for moore
     2 : [3, 6, 7, 8], # day and night for moore
-    1 : [3, 6, 7, 8], # day and night for moore
+    1 : [4, 5, 6], # day and night for moore
 }
 
 Survive = {

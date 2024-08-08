@@ -3,6 +3,8 @@ import time
 start = time.time()
 
 # TODO
+'''По окончании генератора сохранять код исполняемого файла, сид и тп в отдельный файл Лога, чтобы можно было повторить'''
+'''Вынести правила B*/S* в параметр функции Generate и убрать из rules'''
 '''Генератор через сиды, а не randint'''
 '''Сделать маштабируемый блюр и расширение спрайта'''
 '''Сделать настройку на симметричность и в блюре и в генераторе'''
@@ -32,10 +34,15 @@ field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for i in ran
 
 '''Генерация'''
 
-field = Generator.Generate(field, 10, 1, 200, rules.moore_neighborhood_1order)
+field = Generator.Generate(field, 10, 1, 1, rules.moore_neighborhood_1order)
 
-# for i in range(5):
-#     field = Generator.Blur(field, blur_type=blur_types.horizontal_cross)
+for i in range(5):
+    field = Generator.Blur(field, blur_type=blur_types.standart, field_types={1, 2, 3, 4, 5, 6, 7, 8, 9})
+for i in range(5):
+    field = Generator.Blur(field, blur_type=blur_types.outside, field_types={1, 2, 2})
+
+# for i in range(10):
+    # field = Generator.Blur(field, blur_type=blur_types.clarity)
 
 
 # field = Generator.Shuffle_field(field, [9], {10}, 4)

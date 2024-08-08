@@ -102,22 +102,22 @@ def Generate(field: np.ndarray, cell_type: int, field_type: int, iterations: int
             for x in range(rules.width):
                 if field[y][x] in {cell_type, field_type}:
     # Рабочий вариант, но костыль, который будет неправильно работать не в "День и ночь"
-                    # if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Birth[cell_type]:
-                    #         new_field[y][x] = cell_type
-                    # elif field[y][x] == cell_type:
-                    #     if Neighborhood(field, x, y, field_type, neighborhood_type) in rules.Birth[field_type]:
-                    #         new_field[y][x] = field_type
-    # Полурабочий вариант, так как выдает много меньше нужного cell_type клеток
-                    if field[y][x] ==  field_type:
-                        if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Birth[cell_type]:
+                    if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Birth[cell_type]:
                             new_field[y][x] = cell_type
-                        else:
-                            new_field[y][x] = field_type
                     elif field[y][x] == cell_type:
-                        if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Survive[cell_type]:
-                            new_field[y][x] = cell_type
-                        else:
+                        if Neighborhood(field, x, y, field_type, neighborhood_type) in rules.Birth[field_type]:
                             new_field[y][x] = field_type
+    # Полурабочий вариант, так как выдает много меньше нужного cell_type клеток
+                    # if field[y][x] ==  field_type:
+                    #     if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Birth[cell_type]:
+                    #         new_field[y][x] = cell_type
+                    #     else:
+                    #         new_field[y][x] = field_type
+                    # elif field[y][x] == cell_type:
+                    #     if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Survive[cell_type]:
+                    #         new_field[y][x] = cell_type
+                    #     else:
+                    #         new_field[y][x] = field_type
         field = new_field.copy()
     return field
                     
