@@ -72,7 +72,8 @@ def Blur(field: np.ndarray, blur_type=blur_types.standart, field_types={1, 2, 3,
             counter = 0
             for y, x in rules.standart3x3:
                 counter += extended_field[y0 + y + 1][x0 + x + 1] * blur_matrix[y + 1][x + 1]
-            new_field[y0][x0] = int(counter)
+            # new_field[y0][x0] = int(counter) # баг с округлением в разных матрицах размытия
+            new_field[y0][x0] = round(counter)
     
     return new_field
 
@@ -90,6 +91,7 @@ def Neighborhood(field: np.ndarray, x0: int, y0: int, cell_type: int, neighborho
                 counter += 1
     return counter
 
+
 def Generate(field: np.ndarray, cell_type: int, field_type: int, iterations: int, neighborhood_type):
 
     '''Функция генерации клеточного автомата'''
@@ -100,22 +102,22 @@ def Generate(field: np.ndarray, cell_type: int, field_type: int, iterations: int
             for x in range(rules.width):
                 if field[y][x] in {cell_type, field_type}:
     # Рабочий вариант, но костыль, который будет неправильно работать не в "День и ночь"
-                    if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Birth[cell_type]:
-                            new_field[y][x] = cell_type
-                    elif field[y][x] == cell_type:
-                        if Neighborhood(field, x, y, field_type, neighborhood_type) in rules.Birth[cell_type]:
-                            new_field[y][x] = field_type
-    # Полурабочий вариант, так как выдает много меньше нужного cell_type клеток
-                    # if field[y][x] ==  field_type:
-                    #     if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Birth[cell_type]:
+                    # if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Birth[cell_type]:
                     #         new_field[y][x] = cell_type
-                    #     else:
-                    #         new_field[y][x] = field_type
                     # elif field[y][x] == cell_type:
-                    #     if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Survive[cell_type]:
-                    #         new_field[y][x] = cell_type
-                    #     else:
+                    #     if Neighborhood(field, x, y, field_type, neighborhood_type) in rules.Birth[field_type]:
                     #         new_field[y][x] = field_type
+    # Полурабочий вариант, так как выдает много меньше нужного cell_type клеток
+                    if field[y][x] ==  field_type:
+                        if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Birth[cell_type]:
+                            new_field[y][x] = cell_type
+                        else:
+                            new_field[y][x] = field_type
+                    elif field[y][x] == cell_type:
+                        if Neighborhood(field, x, y, cell_type, neighborhood_type) in rules.Survive[cell_type]:
+                            new_field[y][x] = cell_type
+                        else:
+                            new_field[y][x] = field_type
         field = new_field.copy()
     return field
                     

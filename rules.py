@@ -1,14 +1,14 @@
 import gradients
 
 '''Image'''
-height = 150
-width = 150
+height = 100
+width = 100
 
 
 '''Colors'''
 counter = 10
-chances = [1, 10]
 gradient = gradients.black_orange_yellow_white
+chances = [1, 10]
 # gradient = gradients.ocean_beach_forest
 # gradient = gradients.black_to_white
 

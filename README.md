@@ -6,9 +6,9 @@
 ## Архитектура:
 
 
-\\-- gradients
+\-- gradients
 |   /* some gradient.png files */
-\\-- results
+\-- results
 |   /* some test results */
 +-- blur_types.py
 +-- Generator.py
@@ -18,6 +18,31 @@
 +-- rules.py
 +-- test.py
 
+client/
+└── pizza_cli_app/
+    ├── api/
+    ├── commands/
+    ├── utils/
+    ├── cli.py
+├── requirements.txt
+└── setup.py
+server/
+└── app/
+    ├── admin_cli/
+    ├── model/
+    ├── utils/
+    ├── views/
+    ├── mock/
+    ├── app.py
+    ├── database.py
+    └── swagger.yml
+└── migrations/
+    └── versions
+├── cli_admin.py
+├── requirements.txt
+├── runserver.bat
+├── runserver.sh
+README.md
 
 
 Папка gradients - место, где хранятся png представления градиентов (1 на 10 пикселей png)
