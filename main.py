@@ -1,6 +1,7 @@
 import Generator
 import blur_types
 import rules
+
 from PIL import Image
 import time
 
@@ -12,7 +13,6 @@ import time
 '''Распихать файлы по папкам для удобства'''
 '''Логирование результата'''
 '''Генератор градиентов (левый, правый) (словарик индекс:цвет)'''
-# from random import choice TODO
 
 
 '''Подготовка'''
@@ -25,6 +25,7 @@ im = Image.new('RGB', (rules.width, rules.height))
 # im3 = Image.new('RGB', (rules.width, rules.height))
 
 field = Generator.InitializeField(rules.chances, (rules.height, rules.width))
+
 
 '''Генерация'''
 

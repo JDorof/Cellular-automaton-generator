@@ -6,9 +6,9 @@
 ## Архитектура:
 
 
-\-- gradients
++-- gradients/
 |   /* some gradient.png files */
-\-- results
++-- results/
 |   /* some test results */
 +-- blur_types.py
 +-- Generator.py
