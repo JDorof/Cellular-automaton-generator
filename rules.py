@@ -2,9 +2,19 @@ import gradients
 import numpy as np
 
 '''Image'''
+'''
+boundary:
+    Правило, указывающее на способ обработки границы:
+        fill - дополняет входные массивы значением заполнения. (по умолчанию)
+        wrap - круговые граничные условия.
+        symm - симметричные граничные условия.
+'''
 height = 100
 width = 100
-
+boundary = "wrap"
+# boundary = "fill"
+# boundary = "symm"
+seed = "aboba"
 
 '''Colors'''
 counter = 10

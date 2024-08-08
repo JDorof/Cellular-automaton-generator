@@ -1,30 +1,27 @@
 import Generator
 import blur_types
 import rules
-from random import randint, choice
-import numpy as np
+
+from random import randint, choice, seed
+# import numpy as np
 from PIL import Image
 import time
-
-start = time.time()
 
 # TODO
 '''По окончании генератора сохранять код исполняемого файла, сид и тп в отдельный файл Лога, чтобы можно было повторить'''
 '''Вынести правила B*/S* в параметр функции Generate и убрать из rules'''
-'''Генератор через сиды, а не randint'''
 '''Сделать маштабируемый блюр и расширение спрайта'''
-'''Сделать настройку на симметричность и в блюре и в генераторе'''
-'''Заранее выдать оценки по времени (время - этот компьютер, а в принципе сделать коэффициентом)'''
 '''Сделать отдельный фалй-интерфейс, в котором прописывать весь код'''
 '''Распихать файлы по папкам для удобства'''
 '''Логирование результата'''
 '''Генератор градиентов (левый, правый) (словарик индекс:цвет)'''
-# from random import choice TODO
-
-
-# Связи с другими файлами
 
 '''Подготовка'''
+
+start = time.time()
+
+# seed(a=None, version=2)
+seed(a=rules.seed, version=2)
 
 im = Image.new('RGB', (rules.width, rules.height))
 # im2 = Image.new('RGB', (rules.width + 2, rules.height + 2))
@@ -36,8 +33,11 @@ field = Generator.InitializeField(rules.chances, (rules.height, rules.width))
 
 
 field = Generator.RunAutomaton(
-    field, 10, 1, 200, rules.moore_neighborhood_1order, boundary="wrap"
+    field, 10, 1, 200, rules.moore_neighborhood_1order
 )
+
+for i in range(5):
+    field = Generator.Blur(field, blur_type=blur_types.plus)
 
 
 '''Сохранение результата и вывод кол-ва каждого типа клеток'''
