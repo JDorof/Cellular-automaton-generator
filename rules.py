@@ -1,6 +1,10 @@
 import gradients
 import numpy as np
 
+'''seed'''
+# seed = str(time.time())
+seed = "aboab"
+
 '''Image'''
 height = 200
 width = 200
@@ -8,8 +12,15 @@ width = 200
 
 '''Colors'''
 counter = 10
-gradient = gradients.black_orange_yellow_white
 chances = [1, 10]
+# boundary = "fill"
+boundary = "wrap"
+# boundary = "symm"
+
+'''Colors'''
+counter = 10
+# gradient = gradients.white_yellow_orange_black
+gradient = gradients.black_orange_yellow_white
 # gradient = gradients.ocean_beach_forest
 # gradient = gradients.black_to_white
 
