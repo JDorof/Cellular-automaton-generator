@@ -10,8 +10,8 @@ boundary:
         wrap - круговые граничные условия.
         symm - симметричные граничные условия.
 '''
-height = 320
-width = 320
+height = 200
+width = 200
 boundary = "wrap"
 # boundary = "fill"
 # boundary = "symm"

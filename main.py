@@ -2,8 +2,6 @@ import Generator
 import blur_types
 import rules
 
-# import random
-# import numpy as np
 from PIL import Image
 import time
 
@@ -32,25 +30,14 @@ field = Generator.InitializeField(rules.chances, (rules.height, rules.width))
 
 '''Генерация'''
 
-field = Generator.RunAutomaton(field, 8, 3, 3200, rules.moore_neighborhood_1order)
-
-
-# for i in range(5):
-#     field = Generator.Blur(field, blur_type=blur_types.cross)
-
-
-field = Generator.Shuffle_field(field, [1], {3}, 5)
-field = Generator.RunAutomaton(field, 1, 3, 200, rules.moore_neighborhood_1order)
-
-# field = Generator.Shuffle_field(field, [4], {1, 3}, 2)
-# field = Generator.RunAutomaton(field, 4, 3, 250, rules.moore_neighborhood_1order)
-
-field = Generator.Shuffle_field(field, [10], {8}, 4)
-field = Generator.RunAutomaton(field, 10, 8, 100, rules.moore_neighborhood_1order)
-
-for i in range(10):
-    field = Generator.Blur(field, blur_type=blur_types.cross)
-
+l, d = 10, 1
+for _ in range(2):
+    field = Generator.RunAutomaton(field, l, d, 250, rules.moore_neighborhood_1order)
+    # l, d = d, l
+    field = Generator.Blur(field, blur_type=blur_types.standart3x3, target_values=[1], iterations=20)
+    # field = Generator.ReplaceCells(field, replace=[2, 3, 4, 5, 6, 7, 8, 9], to=[10])
+    field = Generator.ReplaceCells(field, replace=[1, 2], to=[7, 8, 9], p=0.05)
+    field = Generator.Blur(field, blur_type=blur_types.standart5x5, iterations=10)
 
 
 '''Сохранение результата и вывод кол-ва каждого типа клеток'''
