@@ -32,12 +32,25 @@ field = Generator.InitializeField(rules.chances, (rules.height, rules.width))
 
 '''Генерация'''
 
-field = Generator.RunAutomaton(
-    field, 10, 1, 200, rules.moore_neighborhood_1order
-)
+field = Generator.RunAutomaton(field, 8, 3, 3200, rules.moore_neighborhood_1order)
 
-for i in range(5):
+
+# for i in range(5):
+#     field = Generator.Blur(field, blur_type=blur_types.cross)
+
+
+field = Generator.Shuffle_field(field, [1], {3}, 5)
+field = Generator.RunAutomaton(field, 1, 3, 200, rules.moore_neighborhood_1order)
+
+# field = Generator.Shuffle_field(field, [4], {1, 3}, 2)
+# field = Generator.RunAutomaton(field, 4, 3, 250, rules.moore_neighborhood_1order)
+
+field = Generator.Shuffle_field(field, [10], {8}, 4)
+field = Generator.RunAutomaton(field, 10, 8, 100, rules.moore_neighborhood_1order)
+
+for i in range(10):
     field = Generator.Blur(field, blur_type=blur_types.cross)
+
 
 
 '''Сохранение результата и вывод кол-ва каждого типа клеток'''
