@@ -2,6 +2,10 @@ import gradients
 import numpy as np
 import time
 
+'''seed'''
+# seed = str(time.time())
+seed = "aboab"
+
 '''Image'''
 '''
 boundary:
@@ -15,18 +19,19 @@ width = 200
 boundary = "wrap"
 # boundary = "fill"
 # boundary = "symm"
-seed = str(time.time())
-# seed = "aboab"
+
+# seed = str(time.time())
+seed = "aboab"
 
 '''Colors'''
 counter = 10
-gradient = gradients.white_yellow_orange_black
-# gradient = gradients.black_orange_yellow_white
+# gradient = gradients.white_yellow_orange_black
+gradient = gradients.black_orange_yellow_white
 # gradient = gradients.ocean_beach_forest
 # gradient = gradients.forest_beach_ocean
 # gradient = gradients.black_to_white
 # gradient = gradients.white_to_black
-chances = [3, 8]
+chances = [1, 10]
 
 '''Neighborhoods'''
 standart3x3 = np.ones((3, 3), dtype=int)

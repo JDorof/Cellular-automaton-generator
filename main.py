@@ -14,11 +14,10 @@ import time
 '''Логирование результата'''
 '''Генератор градиентов (левый, правый) (словарик индекс:цвет)'''
 
+
 '''Подготовка'''
 
 start = time.time()
-
-
 print(f'{rules.seed = }')
 
 im = Image.new('RGB', (rules.width, rules.height))
