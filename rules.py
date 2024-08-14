@@ -21,7 +21,7 @@ boundary = "wrap"
 # boundary = "symm"
 
 # seed = str(time.time())
-seed = "aboab"
+seed = "123в"
 
 '''Colors'''
 counter = 10
