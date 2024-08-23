@@ -3,8 +3,8 @@ import numpy as np
 import time
 
 '''seed'''
-# seed = str(time.time())
-seed = "aboab"
+seed = str(time.time())
+# seed = "aboab"
 
 '''Image'''
 '''
@@ -20,14 +20,11 @@ boundary = "wrap"
 # boundary = "fill"
 # boundary = "symm"
 
-# seed = str(time.time())
-seed = "123в"
-
 '''Colors'''
 counter = 10
 # gradient = gradients.white_yellow_orange_black
-gradient = gradients.black_orange_yellow_white
-# gradient = gradients.ocean_beach_forest
+# gradient = gradients.black_orange_yellow_white
+gradient = gradients.ocean_beach_forest
 # gradient = gradients.forest_beach_ocean
 # gradient = gradients.black_to_white
 # gradient = gradients.white_to_black

@@ -7,13 +7,13 @@
 
 
 +-- gradients/ \
-|       ...    
+|       ... \
 |       *some gradient.png files* \
-|       ...
+|       ... \
 +-- results/ \
-|       ...
+|       ... \
 |       *some test results* \
-|       ...
+|       ... \
 +-- blur_types.py \
 +-- Generator.py \
 +-- gradients.py \
