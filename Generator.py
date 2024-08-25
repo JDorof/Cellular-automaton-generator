@@ -4,6 +4,7 @@ import blur_types
 import numpy as np
 import scipy.signal
 
+from PIL import Image
 from random import randint, seed
 
 # field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for x in range(rules.height * rules.width)]).reshape(rules.width, rules.height)
@@ -86,16 +87,33 @@ def InitializeField(chances, shape):
     return np.random.choice(chances, size=shape).astype("int32")
 
 
-def UpdateField(grid: np.ndarray, live_cell_value: int, dead_cell_value: int, neighborhood_kernel: np.ndarray) -> np.ndarray:
+def UpdateField(
+                grid: np.ndarray
+                , live_cell_value: int
+                , dead_cell_value: int
+                , birth_rule: list
+                , survive_rule: list
+                , neighborhood_kernel: np.ndarray
+                ) -> np.ndarray:
+    
     '''
     Обновляет состояние клеток в поле по заданным правилам.
 
     Параметры
     ----------
-    - grid: np.ndarray - Исходное поле, представляющее собой матрицу чисел.
-    - live_cell_value: int - Значение, обозначающее "живую" клетку.
-    - dead_cell_value: int - Значение, обозначающее "мертвую" клетку.
-    - neighborhood_kernel: np.ndarray -
+    grid: np.ndarray
+        Исходное поле, представляющее собой матрицу чисел.
+    live_cell_value: int
+        Значение, обозначающее "живую" клетку.
+    dead_cell_value: int
+        Значение, обозначающее "мертвую" клетку.
+    birth_rule: list
+        Множество, в котором хранится кол-во соседей,
+        при которых "мертвая" клетка "оживает".
+    survive_rule: list
+        Множество, в котором хранится кол-во соседей,
+        при которых "живая" клетка остается "живой".
+    neighborhood_kernel: np.ndarray
         Ядро свертки, определяющее соседство клеток.
         Квадратная матрица нечетных размеров, где единицы обозначают клетки,
         учитываемые при расчете соседства, а нули - не учитываемые.
@@ -112,8 +130,8 @@ def UpdateField(grid: np.ndarray, live_cell_value: int, dead_cell_value: int, ne
     neighbor_counts = scipy.signal.convolve2d(live_cell_mask, neighborhood_kernel, mode='same', boundary='wrap')
 
     # Определяем маски для клеток, которые должны "родиться" и "выжить"
-    birth_mask = (grid == dead_cell_value) & np.isin(neighbor_counts, rules.Birth[live_cell_value])
-    survival_mask = (grid == live_cell_value) & np.isin(neighbor_counts, rules.Survive[live_cell_value])
+    birth_mask = (grid == dead_cell_value) & np.isin(neighbor_counts, birth_rule)
+    survival_mask = (grid == live_cell_value) & np.isin(neighbor_counts, survive_rule)
 
     # Создаем копию поля для обновления
     updated_grid = grid.copy()
@@ -125,7 +143,16 @@ def UpdateField(grid: np.ndarray, live_cell_value: int, dead_cell_value: int, ne
     return updated_grid
 
 
-def RunAutomaton(grid: np.ndarray, live_cell_value: int, dead_cell_value: int, num_iterations: int, neighborhood_kernel: np.ndarray) -> np.ndarray:
+def RunAutomaton(
+                grid: np.ndarray
+                , live_cell_value: int
+                , dead_cell_value: int
+                , birth_rule: list
+                , survive_rule: list
+                , num_iterations: int
+                , neighborhood_kernel: np.ndarray
+                ) -> np.ndarray:
+    
     '''
     Запускает процесс клеточного автомата для заданного количества итераций.
 
@@ -137,6 +164,12 @@ def RunAutomaton(grid: np.ndarray, live_cell_value: int, dead_cell_value: int, n
         Значение, обозначающее "живую" клетку.
     dead_cell_value: int
         Значение, обозначающее "мертвую" клетку.
+    birth_rule: list
+        Множество, в котором хранится кол-во соседей,
+        при которых "мертвая" клетка "оживает".
+    survive_rule: list
+        Множество, в котором хранится кол-во соседей,
+        при которых "живая" клетка остается "живой".
     num_iterations: int
         Количество итераций для выполнения клеточного автомата.
     neighborhood_kernel: np.ndarray
@@ -151,6 +184,14 @@ def RunAutomaton(grid: np.ndarray, live_cell_value: int, dead_cell_value: int, n
     '''
 
     for _ in range(num_iterations):
-        grid = UpdateField(grid, live_cell_value, dead_cell_value, neighborhood_kernel)
+        grid = UpdateField(grid, live_cell_value, dead_cell_value, birth_rule, survive_rule, neighborhood_kernel)
 
     return grid
+
+def SaveFromNdarray(field: np.ndarray, local_time):
+    im = Image.new('RGB', (rules.width, rules.height))
+    result = list(field.reshape(rules.height*rules.width))
+    for i in range(rules.width * rules.height):
+        result[i] = rules.gradient[result[i] - 1]
+    im.putdata(result)
+    im.save(f'results/{local_time}/picture.png')

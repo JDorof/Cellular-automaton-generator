@@ -24,11 +24,10 @@ boundary = "wrap"
 counter = 10
 # gradient = gradients.white_yellow_orange_black
 # gradient = gradients.black_orange_yellow_white
-gradient = gradients.ocean_beach_forest
-# gradient = gradients.forest_beach_ocean
+# gradient = gradients.ocean_beach_forest
+gradient = gradients.forest_beach_ocean
 # gradient = gradients.black_to_white
 # gradient = gradients.white_to_black
-chances = [1, 10]
 
 '''Neighborhoods'''
 standart3x3 = np.ones((3, 3), dtype=int)
