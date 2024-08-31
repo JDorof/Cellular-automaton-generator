@@ -72,7 +72,7 @@ def Blur(field: np.ndarray, blur_type: np.ndarray, target_values: list = range(1
         blur_mask = np.isin(field, list(target_values_set))
 
         # Применяем размытие ко всему полю
-        blurred_field = scipy.signal.convolve2d(field, blur_type, mode='same', boundary='wrap')
+        blurred_field = scipy.signal.convolve2d(field, blur_type, mode='same', boundary=rules.boundary)
 
         # Восстанавливаем оригинальные значения на местах, которые не подлежат размытию
         blurred_field[~blur_mask] = field[~blur_mask]
@@ -127,7 +127,7 @@ def UpdateField(
     live_cell_mask = (grid == live_cell_value)
 
     # Применяем ядро свертки для подсчета соседей
-    neighbor_counts = scipy.signal.convolve2d(live_cell_mask, neighborhood_kernel, mode='same', boundary='wrap')
+    neighbor_counts = scipy.signal.convolve2d(live_cell_mask, neighborhood_kernel, mode='same', boundary=rules.boundary)
 
     # Определяем маски для клеток, которые должны "родиться" и "выжить"
     birth_mask = (grid == dead_cell_value) & np.isin(neighbor_counts, birth_rule)
