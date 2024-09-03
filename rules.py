@@ -14,22 +14,16 @@ boundary:
         wrap - круговые граничные условия.
         symm - симметричные граничные условия.
 '''
-height = 32
-width = 32
+height = 200
+width = 200
 boundary = "wrap"
 # boundary = "fill"
 # boundary = "symm"
 
 '''Colors'''
-counter = 10
-# gradient = gradients.dark_grey_brown
-# gradient = gradients.white_yellow_orange_black
-# gradient = gradients.black_orange_yellow_white
-# gradient = gradients.ocean_beach_forest
-# gradient = gradients.forest_beach_ocean
-gradient = gradients.grass
-# gradient = gradients.black_to_white
-# gradient = gradients.white_to_black
+gradient = gradients.black_orange_yellow_white
+# gradient = [x for x in reversed(gradients.ocean_beach_forest)]
+
 
 '''Neighborhoods'''
 standart3x3 = np.ones((3, 3), dtype=int)
