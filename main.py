@@ -1,36 +1,34 @@
-import rules
-import blur_types
 import Generator
+import rules
 
-from os import mkdir
-import time
 import logging
 
-start = time.time()
 logging.basicConfig(level=logging.INFO, filename=f'results/res/log.log', filemode="w")
 
 # local_time = time.asctime().replace(':', '_')[4:19]
 # mkdir(path=f'results/{local_time}')
 # logging.basicConfig(level=logging.INFO, filename=f'results/{local_time}/log.log', filemode="w")
 
-print(f'{rules.seed = }')
+print(f'{Generator.seed = }')
 
 '''Генерация'''
 
 # field = Generator.InitializeField([10, 10, 10, 1, 1], (rules.height, rules.width))
 
+sizes = (200, 200)
+directory = "results/res/"
 
-field = Generator.InitializeField([10] + [1 for _ in range(199)], (rules.height, rules.width))
+field = Generator.InitializeField([10] + [1 for _ in range(199)], sizes)
 # field = Generator.InitializeField([1], (rules.height, rules.width))
-field = Generator.RunAutomaton(field, 10, 1, [1, 2, 3, 4, 5, 6, 7, 8], [0, 1, 2, 3, 4, 5, 6, 7, 8], 1, rules.moore_neighborhood_1order)
+field = Generator.RunAutomaton(field, 10, 1, [1, 2, 3, 4, 5, 6, 7, 8], [0, 1, 2, 3, 4, 5, 6, 7, 8], 1, Generator.NeighborhoodClass.moore_neighborhood_1order)
 for i in [8, 8, 9, 9, 10]:
     field = Generator.ReplaceCells(field, replace=[1], to=[i], p=0.01)
-    field = Generator.RunAutomaton(field, i, 1, [1, 2, 3, 4, 5, 6, 7, 8], [0, 1, 2, 3, 4, 5, 6, 7, 8], 1, rules.moore_neighborhood_1order)
-    field = Generator.Blur(field, blur_types.down, target_values={4, 5, 6, 7, 8, 9, 10}, iterations=3)
+    field = Generator.RunAutomaton(field, i, 1, [1, 2, 3, 4, 5, 6, 7, 8], [0, 1, 2, 3, 4, 5, 6, 7, 8], 1, Generator.NeighborhoodClass.moore_neighborhood_1order)
+    field = Generator.Blur(field, Generator.BlurClass.down, target_values={4, 5, 6, 7, 8, 9, 10}, iterations=3)
 for i in [10, 10, 10, 10, 8, 8, 7]:
     field = Generator.ReplaceCells(field, replace=[1], to=[i], p=0.01)
-    field = Generator.RunAutomaton(field, i, 1, [1, 2, 3, 4, 5, 6, 7, 8], [0, 1, 2, 3, 4, 5, 6, 7, 8], 1, rules.moore_neighborhood_1order)
-    field = Generator.Blur(field, blur_types.down, target_values={8, 9, 10}, iterations=3)
+    field = Generator.RunAutomaton(field, i, 1, [1, 2, 3, 4, 5, 6, 7, 8], [0, 1, 2, 3, 4, 5, 6, 7, 8], 1, Generator.NeighborhoodClass.moore_neighborhood_1order)
+    field = Generator.Blur(field, Generator.BlurClass.down, target_values={8, 9, 10}, iterations=3)
 # field = Generator.Blur(field, blur_types.down, target_values={3, 4, 5, 6, 7, 8, 9, 10}, iterations=4)
     # field = Generator.Blur(field, blur_types.down_standart3x3, target_values={1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, iterations=2)
 
@@ -77,6 +75,5 @@ for i in [10, 10, 10, 10, 8, 8, 7]:
 
 '''Сохранение результата'''
 
-Generator.SaveFromNdarray(field, "res")
-# Generator.SaveFromNdarray(field, local_time)
-end = time.time()
+Generator.SaveImageFromNdarrayMatrix(field, directory + "picture.png", Generator.GradientClass.black_orange_yellow_white, sizes)
+

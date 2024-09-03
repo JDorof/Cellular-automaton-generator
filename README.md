@@ -14,13 +14,9 @@
 |       ...\
 |       *some test results*\
 |       ...\
-+-- blur_types.py\
 +-- Generator.py\
-+-- gradients.py\
 +-- main.py\
 +-- README.md\
-+-- rules.py\
-+-- test.py\
 
 
 Папка gradients - место, где хранятся png представления градиентов (1 на 10 пикселей png) \

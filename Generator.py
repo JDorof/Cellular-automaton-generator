@@ -13,6 +13,7 @@ np.random.seed(seed=randint(0, 2^32 - 1))
 
 
 class NeighborhoodClass:
+
     standart3x3 = np.ones((3, 3), dtype=int)
 
     moore_neighborhood_1order = np.ones((3, 3), dtype=int)
@@ -35,6 +36,7 @@ class NeighborhoodClass:
 
 
 class BlurClass:
+
     # сумма всех элементов должа быть равна 1
     # размер матрицы оставляем 3 на 3, так как в функции Blur при вычислении используется поле 3 на 3
 
@@ -59,10 +61,10 @@ class BlurClass:
     ])
 
     square = np.array([
-            [0.166666, 0.166666, 0.166666],
-            [0.166666, 0.0, 0.166666],
-            [0.166666, 0.166666, 0.166666]
-        ])
+        [0.166666, 0.166666, 0.166666],
+        [0.166666, 0.0, 0.166666],
+        [0.166666, 0.166666, 0.166666]
+    ])
 
     cross = np.array([
         [0.15, 0.0, 0.15],
@@ -128,6 +130,7 @@ class BlurClass:
 
 class GradientClass:
 
+
     black_to_white = [(0, 0, 0), (28, 28, 28), (56, 56, 56), (85, 85, 85), (113, 113, 113), (141, 141, 141), (170, 170, 170), (198, 198, 198), (226, 226, 226), (255, 255, 255)]
     ocean_beach_forest = [(5, 6, 27), (11, 15, 134), (25, 68, 178), (60, 143, 215), (60, 208, 215), (237, 255, 68), (79, 255, 0), (70, 200, 11), (29, 145, 32), (9, 110, 12)]
     black_orange_yellow_white = [(0, 0, 0, 255), (63, 27, 0, 255), (127, 54, 0, 255), (191, 81, 0, 255), (255, 108, 0, 255), (255, 157, 0, 255), (255, 206, 0, 255), (255, 255, 0, 255), (255, 255, 127, 255), (255, 255, 255, 255)]
@@ -185,7 +188,14 @@ def ReplaceCells(field: np.ndarray, replace: list, to: list, p: float = 1) -> np
     return field
 
 
-def Blur(field: np.ndarray, blur_type: np.ndarray, target_values: list = range(1, 11), iterations: int = 1) -> np.ndarray:
+def Blur(
+        field: np.ndarray
+        , blur_type: np.ndarray
+        , target_values: set = set(range(1, 11))
+        , iterations: int = 1
+        , boundary="wrap"
+        ) -> np.ndarray:
+    
     '''
     Функция для размытия числового массива с сохранением значений, не входящих в список target_values.
 
@@ -202,15 +212,12 @@ def Blur(field: np.ndarray, blur_type: np.ndarray, target_values: list = range(1
     - np.ndarray - Массив после размытия.
     '''
 
-    # Преобразуем target_values в множество для ускорения поиска
-    target_values_set = set(target_values)
-
     for _ in range(iterations):
         # Создаем маску для клеток, которые нужно размыть
-        blur_mask = np.isin(field, list(target_values_set))
+        blur_mask = np.isin(field, list(target_values))
 
         # Применяем размытие ко всему полю
-        blurred_field = scipy.signal.convolve2d(field, blur_type, mode='same', boundary=rules.boundary)
+        blurred_field = scipy.signal.convolve2d(field, blur_type, mode='same', boundary=boundary)
 
         # Восстанавливаем оригинальные значения на местах, которые не подлежат размытию
         blurred_field[~blur_mask] = field[~blur_mask]
@@ -228,6 +235,7 @@ def UpdateField(
                 , birth_rule: list
                 , survive_rule: list
                 , neighborhood_kernel: np.ndarray
+                , boundary
                 ) -> np.ndarray:
     
     '''
@@ -251,6 +259,11 @@ def UpdateField(
         Ядро свертки, определяющее соседство клеток.
         Квадратная матрица нечетных размеров, где единицы обозначают клетки,
         учитываемые при расчете соседства, а нули - не учитываемые.
+    boundary:
+    Правило, указывающее на способ обработки границы:
+        fill - дополняет входные массивы значением заполнения. (по умолчанию)
+        wrap - круговые граничные условия.
+        symm - симметричные граничные условия.
 
     Возвращает
     ----------
@@ -261,7 +274,7 @@ def UpdateField(
     live_cell_mask = (grid == live_cell_value)
 
     # Применяем ядро свертки для подсчета соседей
-    neighbor_counts = scipy.signal.convolve2d(live_cell_mask, neighborhood_kernel, mode='same', boundary=rules.boundary)
+    neighbor_counts = scipy.signal.convolve2d(live_cell_mask, neighborhood_kernel, mode='same', boundary=boundary)
 
     # Определяем маски для клеток, которые должны "родиться" и "выжить"
     birth_mask = (grid == dead_cell_value) & np.isin(neighbor_counts, birth_rule)
@@ -285,6 +298,7 @@ def RunAutomaton(
                 , survive_rule: list
                 , num_iterations: int
                 , neighborhood_kernel: np.ndarray
+                , boundary="wrap"
                 ) -> np.ndarray:
     
     '''
@@ -310,6 +324,11 @@ def RunAutomaton(
         Ядро свертки, определяющее соседство клеток.
         Квадратная матрица нечетных размеров, где единицы обозначают клетки,
         учитываемые при расчете соседства, а нули - не учитываемые.
+    boundary:
+    Правило, указывающее на способ обработки границы:
+        fill - дополняет входные массивы значением заполнения. (по умолчанию)
+        wrap - круговые граничные условия.
+        symm - симметричные граничные условия.
 
     Возвращает
     ----------
@@ -318,7 +337,7 @@ def RunAutomaton(
     '''
 
     for _ in range(num_iterations):
-        grid = UpdateField(grid, live_cell_value, dead_cell_value, birth_rule, survive_rule, neighborhood_kernel)
+        grid = UpdateField(grid, live_cell_value, dead_cell_value, birth_rule, survive_rule, neighborhood_kernel, boundary=boundary)
 
     return grid
 
