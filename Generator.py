@@ -1,38 +1,74 @@
-import rules
-
 import numpy as np
 import scipy.signal
-
+import time
+import random
 from PIL import Image
-from random import randint, seed
+from os import mkdir
 
 # field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for x in range(rules.height * rules.width)]).reshape(rules.width, rules.height)
-
-seed(a=rules.seed, version=2)
-np.random.seed(seed=randint(0, 2^32 - 1))
+seed = str(time.time())
+random.seed(a=seed, version=2)
+np.random.seed(seed=random.randint(0, 2^32 - 1))
 
 
 class NeighborhoodClass:
 
     standart3x3 = np.ones((3, 3), dtype=int)
+    '''
+    1 1 1\n
+    1 1 1\n
+    1 1 1
+    '''
 
     moore_neighborhood_1order = np.ones((3, 3), dtype=int)
     moore_neighborhood_1order[1, 1] = 0
+    '''
+    1 1 1\n
+    1 0 1\n
+    1 1 1
+    '''
 
     moore_neighborhood_2order = np.ones((5, 5), dtype=int)
     moore_neighborhood_2order[2, 2] = 0
+    '''
+    1 1 1 1 1\n
+    1 1 1 1 1\n
+    1 1 0 1 1\n
+    1 1 1 1 1\n
+    1 1 1 1 1
+    '''
 
     plus = np.ones((3, 3), dtype=int)
     plus[0][0] = plus[0][2] = plus[2][0] = plus[2][2] = 0
+    '''
+    0 1 0\n
+    1 1 1\n
+    0 1 0
+    '''
 
     cross = np.ones((3, 3), dtype=int)
     cross[0][1] = cross[1][0] = cross[1][2] = cross[2][1] = 0
+    '''
+    1 0 1\n
+    0 1 0\n
+    1 0 1
+    '''
 
-    horizontal = np.ones((3, 3), dtype=int)
-    horizontal[1][0] = horizontal[1][2] = 1
+    horizontal = np.zeros((3, 3), dtype=int)
+    horizontal[1][0] = horizontal[1][2] = horizontal[1][1] = 1
+    '''
+    0 0 0\n
+    1 1 1\n
+    0 0 0
+    '''
 
-    vertical = np.ones((3, 3), dtype=int)
-    vertical[0][1] = vertical[2][1] = 1
+    vertical = np.zeros((3, 3), dtype=int)
+    vertical[0][1] = vertical[2][1] = vertical[1][1] = 1
+    '''
+    0 1 0\n
+    0 1 0\n
+    0 1 0
+    '''
 
 
 class BlurClass:
@@ -154,7 +190,13 @@ def InitializeField(chances, shape):
     return np.random.choice(chances, size=shape).astype("int32")
 
 
-def ReplaceCells(field: np.ndarray, replace: list, to: list, p: float = 1) -> np.ndarray:
+def ReplaceCells(
+        field: np.ndarray
+        , replace: list
+        , to: list
+        , p: float = 1
+        ) -> np.ndarray:
+
     '''
     Функция случайной замены клеток типов из target_types на типы из replacement_types с заданной вероятностью.
 
@@ -225,7 +267,7 @@ def Blur(
         # Округляем значения и приводим их к целым числам
         field = blurred_field
 
-    return np.round(field).astype(int)
+    return np.round(field).astype(dtype="int32")
 
 
 def UpdateField(
@@ -342,10 +384,37 @@ def RunAutomaton(
     return grid
 
 
-def SaveImageFromNdarrayMatrix(field: np.ndarray, path: str, gradient: list, sizes: tuple):
+'''SaveLoad Functions'''
+
+
+def SaveImage(field: np.ndarray, path: str, gradient: list):
+    sizes = field.shape
     im = Image.new('RGB', sizes)
     result = list(field.reshape(sizes[0] * sizes[1]))
     for i in range(sizes[0] * sizes[1]):
         result[i] = gradient[result[i] - 1]
     im.putdata(result)
     im.save(path)
+
+
+def SaveMatrix(field: np.ndarray, path):
+    np.savetxt(path, field, delimiter=' ', fmt='%d')
+
+
+def LoadMatrix(path):
+    return np.loadtxt(path, dtype="int32")
+
+
+def SaveCode(file_to_save, path_for_save):
+
+    file = open(file_to_save)
+    flag = True
+
+    with open(path_for_save, mode="w") as save:
+        for line in file:
+            li=line.strip()
+            if not li.startswith("#"):
+                save.write(line)
+            if flag and line.find("Generator"):
+                save.write(f'\nGenerator.{seed = }')
+                flag = False
