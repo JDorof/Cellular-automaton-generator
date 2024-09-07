@@ -4,9 +4,18 @@ import time
 import random
 from PIL import Image
 
-seed = str(time.time())
-random.seed(a=seed, version=2)
-np.random.seed(seed=random.randint(0, 2^32 - 1))
+
+class SeedClass:
+    seed = str(time.time())
+    random.seed(a=seed, version=2)
+    np.random.seed(seed=random.randint(0, 2^32 - 1))
+
+    @staticmethod
+    def ChangeSeed(new_seed: str):
+        SeedClass.seed = new_seed
+        random.seed(a=new_seed, version=2)
+        np.random.seed(seed=random.randint(0, 2^32 - 1))
+
 
 class NeighborhoodClass:
 
@@ -18,15 +27,14 @@ class NeighborhoodClass:
     '''
 
     moore_neighborhood_1order = np.ones((3, 3), dtype=int)
-    moore_neighborhood_1order[1, 1] = 0
     '''
     1 1 1\n
     1 0 1\n
     1 1 1
     '''
+    moore_neighborhood_1order[1, 1] = 0
 
     moore_neighborhood_2order = np.ones((5, 5), dtype=int)
-    moore_neighborhood_2order[2, 2] = 0
     '''
     1 1 1 1 1\n
     1 1 1 1 1\n
@@ -34,38 +42,39 @@ class NeighborhoodClass:
     1 1 1 1 1\n
     1 1 1 1 1
     '''
+    moore_neighborhood_2order[2, 2] = 0
 
     plus = np.ones((3, 3), dtype=int)
-    plus[0][0] = plus[0][2] = plus[2][0] = plus[2][2] = 0
     '''
     0 1 0\n
     1 1 1\n
     0 1 0
     '''
+    plus[0][0] = plus[0][2] = plus[2][0] = plus[2][2] = 0
 
     cross = np.ones((3, 3), dtype=int)
-    cross[0][1] = cross[1][0] = cross[1][2] = cross[2][1] = 0
     '''
     1 0 1\n
     0 1 0\n
     1 0 1
     '''
+    cross[0][1] = cross[1][0] = cross[1][2] = cross[2][1] = 0
 
     horizontal = np.zeros((3, 3), dtype=int)
-    horizontal[1][0] = horizontal[1][2] = horizontal[1][1] = 1
     '''
     0 0 0\n
     1 1 1\n
     0 0 0
     '''
+    horizontal[1][0] = horizontal[1][2] = horizontal[1][1] = 1
 
     vertical = np.zeros((3, 3), dtype=int)
-    vertical[0][1] = vertical[2][1] = vertical[1][1] = 1
     '''
     0 1 0\n
     0 1 0\n
     0 1 0
     '''
+    vertical[0][1] = vertical[2][1] = vertical[1][1] = 1
 
 
 class BlurClass:
@@ -424,5 +433,5 @@ def SaveCode(file_to_save, path_for_save):
             if not li.startswith("#"):
                 save.write(line)
             if flag and line.find("Generator"):
-                save.write(f'\nGenerator.{seed = }')
+                save.write(f'\nGenerator.SeedClass.{SeedClass.seed = }')
                 flag = False
