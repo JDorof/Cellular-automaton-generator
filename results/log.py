@@ -1,27 +1,31 @@
 import Generator
+import time
+import numpy as np
 
-Generator.SeedClass.SeedClass.seed = 'aboba'
 '''Генерация'''
 
+start = time.time()
 
 Generator.SeedClass.ChangeSeed("aboba")
 print(f"{Generator.SeedClass.seed=}")
+print(np.logical_or(Generator.NeighborhoodClass.cross,  Generator.NeighborhoodClass.horizontal).astype("int32"))
 
-
-sizes = (100, 100)
+sizes = (200, 200)
 directory = "results/"
 
-BirthDaN = [3, 4]
-SurviveDaN = [3, 4]
+BirthDaN = [6, 5, 4 ,3]
+SurviveDaN = [7, 6, 5]
 
 field = Generator.InitializeField([10, 1], sizes)
-field = Generator.RunAutomaton(field, 10, 1, BirthDaN, SurviveDaN, 200, Generator.NeighborhoodClass.cross)
-field = Generator.RunAutomaton(field, 10, 1, [4], [0, 1, 2, 3, 4, 5], 1, Generator.NeighborhoodClass.plus)
-field = Generator.RunAutomaton(field, 10, 1, [2], [0, 1, 2, 3, 4, 5], 1, Generator.NeighborhoodClass.plus)
-field = Generator.Blur(field, Generator.BlurClass.cross, iterations=5)
+field = Generator.RunAutomaton(field, 10, 1, BirthDaN, SurviveDaN, 5, np.logical_or(Generator.NeighborhoodClass.cross,  Generator.NeighborhoodClass.horizontal).astype("int32"))
 
 '''Сохранение результата'''
 
-Generator.SaveImage(field, directory + "picture.png", Generator.GradientClass.black_to_white)
+Generator.SaveImage(field, directory + f"picture.png", Generator.GradientClass.all_gradients[0])
 Generator.SaveMatrix(field, directory + "matrix.txt")
 Generator.SaveCode("main.py", directory + "log.py")
+
+end = time.time()
+
+print(end-start)
+# Generator.SeedClass.seed = 'aboba'
