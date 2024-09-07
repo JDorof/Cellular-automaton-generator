@@ -1,5 +1,6 @@
 import Generator
 
+Generator.seed = '1725691161.0298133'
 '''Генерация'''
 
 print(f"{Generator.seed=}")
