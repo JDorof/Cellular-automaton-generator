@@ -3,13 +3,10 @@ import scipy.signal
 import time
 import random
 from PIL import Image
-from os import mkdir
 
-# field = np.array([rules.chances[randint(0, len(rules.chances) - 1)] for x in range(rules.height * rules.width)]).reshape(rules.width, rules.height)
 seed = str(time.time())
 random.seed(a=seed, version=2)
 np.random.seed(seed=random.randint(0, 2^32 - 1))
-
 
 class NeighborhoodClass:
 
@@ -163,6 +160,12 @@ class BlurClass:
         [0.0, 0.0, 0.0]
     ])
 
+    # contrast = np.array([
+    #     [-1.0, -1.0, -1.0],
+    #     [-1.0, 9.0, -1.0],
+    #     [-1.0, -1.0, -1.0]
+    # ])
+
 
 class GradientClass:
 
@@ -265,7 +268,7 @@ def Blur(
         blurred_field[~blur_mask] = field[~blur_mask]
 
         # Округляем значения и приводим их к целым числам
-        field = blurred_field
+        field = np.round(blurred_field).astype(dtype="int32")
 
     return np.round(field).astype(dtype="int32")
 
@@ -391,8 +394,13 @@ def SaveImage(field: np.ndarray, path: str, gradient: list):
     sizes = field.shape
     im = Image.new('RGB', sizes)
     result = list(field.reshape(sizes[0] * sizes[1]))
-    for i in range(sizes[0] * sizes[1]):
-        result[i] = gradient[result[i] - 1]
+    try:
+        for i in range(sizes[0] * sizes[1]):
+            result[i] = gradient[result[i] - 1]
+    except IndexError:
+        print("SaveImage function:")
+        print(f"ERROR: You have int values bigger than 'max index - 1': {result[i] - 1}")
+        exit()
     im.putdata(result)
     im.save(path)
 
