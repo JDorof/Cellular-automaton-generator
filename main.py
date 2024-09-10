@@ -8,7 +8,7 @@ import numpy as np
 
 start = time.time()
 
-# Generator.SeedClass.ChangeSeed("aboba")
+# Generator.SeedClass.ChangeSeed('1725972406.9964516')
 print(f"{Generator.SeedClass.seed=}")
 
 sizes = (200, 200)
@@ -16,35 +16,28 @@ directory = "results/"
 
 fields = []
 
-for x in range(2):
-    field1 = Generator.InitializeField([10, 1], sizes)
-    for _ in range(2):
-        field1 = Generator.RunAutomaton(field1, 10, 1, [3, 6, 7, 8], [3, 4, 6, 7, 8], 250, Generator.NeighborhoodClass.moore_neighborhood_1order)
-        field1 = Generator.Blur(field1, blur_type=Generator.BlurClass.standart3x3, target_values=[1], iterations=20)
-        field1 = Generator.ReplaceCells(field1, replace=[1, 2], to=[7, 8, 9], p=0.05)
-        field1 = Generator.Blur(field1, blur_type=Generator.BlurClass.standart5x5, iterations=10)
-    field1 = Generator.ReplaceCells(field1, replace=[10], to=[1, 2], p=1)
-    field1 = Generator.Blur(field1, blur_type=Generator.BlurClass.standart5x5, iterations=5)
-    fields.append(field1)
 
-for x in range(1):
-    field1 = Generator.InitializeField([10, 1], sizes)
-    for _ in range(2):
-        field1 = Generator.RunAutomaton(field1, 10, 1, [3, 6, 7, 8], [3, 4, 6, 7, 8], 1000, Generator.NeighborhoodClass.moore_neighborhood_1order)
-        field1 = Generator.Blur(field1, blur_type=Generator.BlurClass.standart3x3, target_values=[1], iterations=20)
-        field1 = Generator.ReplaceCells(field1, replace=[1, 2], to=[7, 8, 9], p=0.05)
-        field1 = Generator.Blur(field1, blur_type=Generator.BlurClass.standart5x5, iterations=10)
-    fields.append(field1)
+BirthDaN = [6, 5, 4 ,3]
+SurviveDaN = [7, 6, 5]
+a = 3
 
-field3 = Generator.AveragedSumOfFields(*fields)
 
+for x in range(a):
+    field = Generator.InitializeField([10, 1], sizes)
+    field = Generator.RunAutomaton(field, 10, 1, BirthDaN, SurviveDaN, 5, np.logical_or(Generator.NeighborhoodClass.cross,  Generator.NeighborhoodClass.horizontal).astype("int32"))
+    fields.append(field)
+
+field = Generator.AverageAmountOfFields(*fields)
+field = Generator.Blur(field, Generator.BlurClass.standart3x3, iterations=1)
 
 '''Сохранение результата'''
 
 # for i in range(5):
 #     Generator.SaveImage(field, directory + f"picture{i}.png", Generator.GradientClass.all_gradients[i])
-Generator.SaveImage(field3, directory + f"picture3.png", Generator.GradientClass.black_orange_yellow_white)
-Generator.SaveMatrix(field1, directory + "matrix.txt")
+gradient = Generator.GradientClass.ocean_beach_forest
+gradient.reverse()
+Generator.SaveImage(field, directory + f"picture3.png", gradient)
+Generator.SaveMatrix(field, directory + "matrix.txt")
 Generator.SaveCode("main.py", directory + "log.py")
 
-print(start - time.time())
+print(time.time() - start)

@@ -507,6 +507,6 @@ def SaveCode(name_of_file, path):
         save.write(f'\n# Generator.{SeedClass.seed = }')
 
 
-def AveragedSumOfFields(*fields):
+def AverageAmountOfFields(*fields):
     field = np.round(sum(fields) / len(fields)).astype(dtype="int32")
     return field
