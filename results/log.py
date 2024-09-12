@@ -9,32 +9,29 @@ start = time.time()
 
 print(f"{Generator.SeedClass.seed=}")
 
-sizes = (200, 200)
+sizes = (100, 100)
 directory = "results/"
 
 fields = []
 
-
 BirthDaN = [6, 5, 4 ,3]
 SurviveDaN = [7, 6, 5]
-a = 3
+a = 1
 
-
-for x in range(a):
-    field = Generator.InitializeField([10, 1], sizes)
-    field = Generator.RunAutomaton(field, 10, 1, BirthDaN, SurviveDaN, 5, np.logical_or(Generator.NeighborhoodClass.cross,  Generator.NeighborhoodClass.horizontal).astype("int32"))
-    fields.append(field)
-
-field = Generator.AverageAmountOfFields(*fields)
-field = Generator.Blur(field, Generator.BlurClass.standart5x5, iterations=1)
+field = Generator.InitializeField([10, 1], sizes)
+field = Generator.Blur(field, Generator.BlurClass.plus, iterations=2)
+field2 = Generator.InitializeField([10, 1], (1000, 1000))
+field2 = Generator.Blur(field2, Generator.BlurClass.plus, iterations=2)
+field = Generator.UpScale(field, scale=10)
+field = Generator.AverageAmountOfFields(field, field2)
 
 '''Сохранение результата'''
 
-gradient = Generator.GradientClass.ocean_beach_forest
+gradient = Generator.GradientClass.black_orange_yellow_white
 gradient.reverse()
-Generator.SaveImage(field, directory + f"picture3.png", gradient)
+Generator.SaveImage(field, directory + f"picture.png", gradient)
 Generator.SaveMatrix(field, directory + "matrix.txt")
 Generator.SaveCode("main.py", directory + "log.py")
 
 print(time.time() - start)
-# Generator.SeedClass.seed = '1725973660.317327'
+# Generator.SeedClass.seed = '1726157149.7274232'

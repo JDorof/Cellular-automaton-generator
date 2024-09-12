@@ -80,7 +80,6 @@ class NeighborhoodClass:
 class BlurClass:
 
     # сумма всех элементов должа быть равна 1
-    # размер матрицы оставляем 3 на 3, так как в функции Blur при вычислении используется поле 3 на 3
 
     standart3x3 = np.array([
         [0.0625, 0.125, 0.0625],
@@ -300,17 +299,10 @@ def ReplaceCells(
 
     if np.any(mask):
         # Определяем, какие из клеток для замены будут заменены на новые типы с заданной вероятностью
-        mask[mask] = np.random.choice(
-            [False, True],
-            p=[1 - p, p],
-            size=mask.sum()
-        )
+        mask[mask] = np.random.choice([False, True], p=[1 - p, p], size=mask.sum())
 
         # Генерируем новые значения для замены
-        field[mask] = np.random.choice(
-            list(to),
-            size=mask.sum()
-        )
+        field[mask] = np.random.choice(list(to), size=mask.sum())
 
     return field
 
@@ -474,6 +466,7 @@ def RunAutomaton(
 
 def SaveImage(field: np.ndarray, path: str, gradient: list):
     sizes = field.shape
+    print(sizes)
     im = Image.new('RGB', sizes)
     result = list(field.reshape(sizes[0] * sizes[1]))
     try:
@@ -510,3 +503,11 @@ def SaveCode(name_of_file, path):
 def AverageAmountOfFields(*fields):
     field = np.round(sum(fields) / len(fields)).astype(dtype="int32")
     return field
+
+
+def UpScale(field: np.ndarray, scale: int = 2):
+    new_field = np.zeros([x * scale for x in field.shape], dtype="int32")
+    for i in range(scale):
+        for j in range(scale):
+            new_field[i::scale,j::scale] = field
+    return new_field
