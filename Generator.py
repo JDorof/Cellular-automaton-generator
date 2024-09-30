@@ -60,21 +60,33 @@ class NeighborhoodClass:
     '''
     cross[0][1] = cross[1][0] = cross[1][2] = cross[2][1] = 0
 
-    horizontal = np.zeros((3, 3), dtype=int)
+    horizontal_1order = np.zeros((3, 3), dtype=int)
     '''
     0 0 0\n
     1 1 1\n
     0 0 0
     '''
-    horizontal[1][0] = horizontal[1][2] = horizontal[1][1] = 1
+    horizontal_1order[1][0] = horizontal_1order[1][2] = horizontal_1order[1][1] = 1
 
-    vertical = np.zeros((3, 3), dtype=int)
+    horizontal_2order = np.zeros((5, 5), dtype=int)
     '''
-    0 1 0\n
-    0 1 0\n
-    0 1 0
+    0 0 0 0 0\n
+    0 0 0 0 0\n
+    1 1 1 1 1\n
+    0 0 0 0 0\n
+    0 0 0 0 0
     '''
-    vertical[0][1] = vertical[2][1] = vertical[1][1] = 1
+    horizontal_2order[2][0] = horizontal_2order[2][1] = horizontal_2order[2][2] = horizontal_2order[2][3] = horizontal_2order[2][4] = 1
+
+    vertical_2order = np.zeros((5, 5), dtype=int)
+    '''
+    0 0 1 0 0\n
+    0 0 1 0 0\n
+    0 0 1 0 0\n
+    0 0 1 0 0\n
+    0 0 1 0 0
+    '''
+    vertical_2order[0][2] = vertical_2order[1][2] = vertical_2order[2][2] = vertical_2order[3][2] = vertical_2order[4][2] = 1
 
 
 class BlurClass:
@@ -278,7 +290,7 @@ def ReplaceCells(
         field: np.ndarray
         , replace: list
         , to: list
-        , p: float = 1
+        , p: float = 1.0
         ) -> np.ndarray:
 
     '''
@@ -354,7 +366,10 @@ def UpdateField(
                 , birth_rule: list
                 , survive_rule: list
                 , neighborhood_kernel: np.ndarray
-                , boundary
+                , birth_chance: float = 1.0
+                , survive_chance: float = 1.0
+                , death_chance: float = 1.0
+                , boundary: str = "wrap"
                 ) -> np.ndarray:
     
     '''
@@ -396,12 +411,21 @@ def UpdateField(
     neighbor_counts = scipy.signal.convolve2d(live_cell_mask, neighborhood_kernel, mode='same', boundary=boundary)
 
     # Определяем маски для клеток, которые должны "родиться" и "выжить"
-    birth_mask = (grid == dead_cell_value) & np.isin(neighbor_counts, birth_rule)
+    birth_mask = (grid == dead_cell_value) & np.isin(neighbor_counts, birth_rule) 
     survival_mask = (grid == live_cell_value) & np.isin(neighbor_counts, survive_rule)
+
+    if birth_chance != 1:
+        birth_mask[birth_mask] = np.random.choice([False, True], p=[1 - birth_chance, birth_chance], size=birth_mask.astype("int32").sum())
+    if survive_chance != 1:
+        survival_mask[survival_mask] = np.random.choice([False, True], p=[1 - survive_chance, survive_chance], size=survival_mask.astype("int32").sum())
 
     # Создаем копию поля для обновления
     updated_grid = grid.copy()
 
+    # if death_chance != 1:
+    #     death_to_birth_mask = birth_mask | survival_mask
+    #     death_to_birth_mask[death_to_birth_mask] = np.random.choice([False, True], p=[1 - death_chance, death_chance], size=death_to_birth_mask.astype("int32").sum())
+    
     # Обновляем состояния клеток
     updated_grid[birth_mask] = live_cell_value
     updated_grid[~survival_mask & live_cell_mask] = dead_cell_value
@@ -417,7 +441,10 @@ def RunAutomaton(
                 , survive_rule: list
                 , num_iterations: int
                 , neighborhood_kernel: np.ndarray
-                , boundary="wrap"
+                , birth_chance: float = 1.0
+                , survive_chance: float = 1.0
+                , death_chance: float = 1.0
+                , boundary: str = "wrap"
                 ) -> np.ndarray:
     
     '''
@@ -456,7 +483,9 @@ def RunAutomaton(
     '''
 
     for _ in range(num_iterations):
-        grid = UpdateField(grid, live_cell_value, dead_cell_value, birth_rule, survive_rule, neighborhood_kernel, boundary=boundary)
+        grid = UpdateField(grid, live_cell_value, dead_cell_value, birth_rule
+                           , survive_rule, neighborhood_kernel, birth_chance=birth_chance
+                           , survive_chance=survive_chance, death_chance=death_chance, boundary=boundary)
 
     return grid
 
@@ -466,7 +495,6 @@ def RunAutomaton(
 
 def SaveImage(field: np.ndarray, path: str, gradient: list):
     sizes = field.shape
-    print(sizes)
     im = Image.new('RGB', sizes)
     result = list(field.reshape(sizes[0] * sizes[1]))
     try:
@@ -505,7 +533,7 @@ def AverageAmountOfFields(*fields):
     return field
 
 
-def UpScale(field: np.ndarray, scale: int = 2):
+def UpScale(field: np.ndarray, scale: int = 1):
     new_field = np.zeros([x * scale for x in field.shape], dtype="int32")
     for i in range(scale):
         for j in range(scale):
