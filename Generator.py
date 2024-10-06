@@ -6,6 +6,7 @@ from PIL import Image
 
 
 class SeedClass:
+
     seed = str(time.time())
     random.seed(a=seed, version=2)
     np.random.seed(seed=random.randint(0, 2^32 - 1))
@@ -18,6 +19,12 @@ class SeedClass:
 
 
 class NeighborhoodClass:
+    '''
+    Класс, в котором храняться ядра свертки, определяющее соседство клеток.
+    Квадратная матрица нечетных размеров, где единицы обозначают клетки,
+    учитываемые при расчете соседства, а нули - не учитываемые.
+    '''
+
 
     standart3x3 = np.ones((3, 3), dtype=int)
     '''
@@ -90,6 +97,9 @@ class NeighborhoodClass:
 
 
 class BlurClass:
+    '''
+    Класс, в котором храняться ядра свертки для размытия.
+    '''
 
     # сумма всех элементов должа быть равна 1
 
@@ -260,6 +270,10 @@ class BlurClass:
 
 
 class GradientClass:
+    '''
+    Класс, в котором хранятся разные градиенты
+    и функции чтения и записи этих градиентов
+    '''
 
 
     black_to_white = [(0, 0, 0), (28, 28, 28), (56, 56, 56), (85, 85, 85), (113, 113, 113), (141, 141, 141), (170, 170, 170), (198, 198, 198), (226, 226, 226), (255, 255, 255)]
@@ -270,19 +284,48 @@ class GradientClass:
 
     all_gradients = [black_to_white, ocean_beach_forest, black_orange_yellow_white, dark_grey_brown, grass]
 
-    def ReadGradient(path):
+    def ReadGradient(path: str):
+        '''
+        Функция чтения градиента из файла
+        ---
+        Параметры:\n
+        - path: str - путь до файла.
+        ---
+        Возвращает:\n
+        - list - Массив с цветами градиента.\n
+        '''
+
         to_read = Image.open(path)
         gradient = [to_read.getpixel((x, 0)) for x in range(0, 10)]
         return gradient
 
 
-    def SaveGradient(gradient, name):
+    def SaveGradient(gradient: list, path: str):
+        '''
+        Функция сохранения градиента в файл\n
+        ---
+        Параметры:\n
+        - gradient: list - Массив с цветами градиента.\n
+        - path: str - путь до файла.
+        '''
+
         to_save = Image.new('RGBA', (10, 1))
         to_save.putdata(gradient)
-        to_save.save(f'gradients/{name}')
+        to_save.save(path)
 
 
-def InitializeField(chances, shape):
+def InitializeField(chances: list, shape: tuple):
+    '''
+    Функция случайного заполнения клеток числами из chances в матрицу с размерами shape.
+    ---
+    Параметры:\n
+    - chances: list - Массив с значениями, из которых потом будет случайным образом наполнятся клетки матрицы.\n
+    - shape: tuple - размеры матрицы.
+    ---
+    Возвращает:\n
+    - np.ndarray - Матрица со случайными значениями.\n
+    '''
+
     return np.random.choice(chances, size=shape).astype("int32")
 
 
@@ -294,16 +337,16 @@ def ReplaceCells(
         ) -> np.ndarray:
 
     '''
-    Функция случайной замены клеток типов из target_types на типы из replacement_types с заданной вероятностью.\n\n
+    Функция случайной замены клеток типов из target_types на типы из replacement_types с заданной вероятностью.
     ---
     Параметры:\n
     - field: np.ndarray - Массив, в котором производится замена клеток.\n
     - replace: list - Список типов клеток, которые нужно заменить.\n
     - to: list - Список типов клеток, на которые будут заменены целевые клетки.\n
-    - p: float - Вероятность замены клеток, значение от 0 до 1.\n\n
+    - p: float - Вероятность замены клеток, значение от 0 до 1.
     ---
     Возвращает:\n
-    - np.ndarray - Массив с замененными клетками.\n
+    - np.ndarray - Матрица с замененными клетками.\n
     '''
 
     # Создаем маску для клеток, которые должны быть заменены
@@ -328,10 +371,10 @@ def Blur(
         ) -> np.ndarray:
     
     '''
-    Функция для размытия числового массива с сохранением значений, не входящих в список target_values.\n\n
+    Функция для размытия числового массива с сохранением значений, не входящих в список target_values.
     ---
     Параметры:\n
-    - field: np.ndarray - Массив, который нужно размыть.\n
+    - field: np.ndarray - Матрица, которую нужно размыть.\n
     - blur_type: np.ndarray - Ядро свертки для размытия.\n
     - target_values: list - Список значений, которые должны быть размыты. Значения, не входящие в этот список, остаются неизменными.\n
     - iterations: int - Количество итераций размытия.\n
@@ -339,10 +382,10 @@ def Blur(
     Правило, указывающее на способ обработки границы:\n
     - fill - дополняет входные массивы значением заполнения. (по умолчанию)\n
     - wrap - круговые граничные условия.\n
-    - symm - симметричные граничные условия.\n\n
+    - symm - симметричные граничные условия.
     ---
     Возвращает:\n
-    - np.ndarray - Массив после размытия.
+    - np.ndarray - Матрица после размытия.
     '''
 
     for _ in range(iterations):
@@ -372,7 +415,7 @@ def UpdateField(
                 ) -> np.ndarray:
     
     '''
-    Обновляет состояние клеток в поле по заданным правилам.\n\n
+    Обновляет состояние клеток в поле по заданным правилам.
     ---
     Параметры:\n
     - grid: np.ndarray - Исходное поле, представляющее собой матрицу чисел.\n
@@ -385,10 +428,10 @@ def UpdateField(
     Правило, указывающее на способ обработки границы:\n
     - fill - дополняет входные массивы значением заполнения. (по умолчанию)\n
     - wrap - круговые граничные условия.\n
-    - symm - симметричные граничные условия.\n\n
+    - symm - симметричные граничные условия.
     ---
     Возвращает:\n
-    - np.ndarray - Обновленное поле.
+    - np.ndarray - Обновленная матрица.
     '''
 
     # Создаем маску для клеток, которые считаются "живыми"
@@ -423,7 +466,7 @@ def RunAutomaton(
                 ) -> np.ndarray:
     
     '''
-    Запускает процесс клеточного автомата для заданного количества итераций.\n\n
+    Запускает процесс клеточного автомата для заданного количества итераций.
     ---
     Параметры:\n
     - grid: np.ndarray - Исходное поле, представляющее собой матрицу чисел.\n
@@ -437,10 +480,10 @@ def RunAutomaton(
     Правило, указывающее на способ обработки границы:\n
     - fill - дополняет входные массивы значением заполнения. (по умолчанию)\n
     - wrap - круговые граничные условия.\n
-    - symm - симметричные граничные условия.\n
+    - symm - симметричные граничные условия.
     ---
     Возвращает\n
-    - np.ndarray - Поле после выполнения всех итераций клеточного автомата.
+    - np.ndarray - Матрица после выполнения всех итераций клеточного автомата.
     '''
 
     for _ in range(num_iterations):
@@ -450,10 +493,56 @@ def RunAutomaton(
     return grid
 
 
+def AverageAmountOfFields(*fields):
+    '''
+    Функция, которая складвает все матрицы, после деля каждое значение на кол-во матриц.
+    ---
+    Параметры:\n
+    - *fields - массив с матрицами
+    ---
+    Возвращает:\n
+    - np.ndarray - Итоговая матрица.
+    '''
+
+    field = np.round(sum(fields) / len(fields)).astype(dtype="int32")
+    return field
+
+
+def UpScale(field: np.ndarray, scale: int = 1):
+    '''
+    Функция увеличения поля в целое число раз.
+    ---
+    Параметры:\n
+    - field: np.ndarray - Матрица.\n
+    - scale: int - Во сколько раз будет увеличена матрица.
+    ---
+    Возвращает:\n
+    - np.ndarray - Матрица после увеличения.
+    '''
+
+    new_field = np.zeros([x * scale for x in field.shape], dtype="int32")
+    for i in range(scale):
+        for j in range(scale):
+            new_field[i::scale,j::scale] = field
+    return new_field
+
+
 '''SaveLoad Functions'''
 
 
 def SaveImage(field: np.ndarray, path: str, gradient: list):
+    '''
+    Функция сохранения матрицы в файл изображение.
+    ---
+    Параметры:\n
+    - field: np.ndarray - Матрица для сохранения.\n
+    - path: str - Путь сохранения. \n
+    - gradietn: list - С каким градиентом будет сохранена матрица.
+    ---
+    Возвращает:\n
+    - np.ndarray - Матрица после увеличения.
+    '''
+
     sizes = field.shape
     im = Image.new('RGB', sizes)
     result = list(field.reshape(sizes[0] * sizes[1]))
@@ -468,34 +557,51 @@ def SaveImage(field: np.ndarray, path: str, gradient: list):
     im.save(path)
 
 
-def SaveMatrix(field: np.ndarray, path):
+def SaveMatrix(field: np.ndarray, path: str):
+    '''
+    Функция сохранения матрицы в файл.
+    ---
+    Параметры:\n
+    - field: np.ndarray - Матрица для сохранения.\n
+    - path: str - Путь сохранения. \n
+    - gradietn: list - С каким градиентом будет сохранена матрица.
+    ---
+    Возвращает:\n
+    - np.ndarray - Матрица после увеличения.
+    '''
+
     np.savetxt(path, field, delimiter=' ', fmt='%d')
 
 
-def LoadMatrix(path):
+def LoadMatrix(path: str):
+    '''
+    Функция загрузки матрицы из файла.
+    ---
+    Параметры:\n
+    - path: str - Путь сохранения.
+    ---
+    Возвращает:\n
+    - np.ndarray - Загруженную матрицу.
+    '''
+
     return np.loadtxt(path, dtype="int32")
 
 
-def SaveCode(name_of_file, path):
+def SaveCode(source_path: str, destination_path: str):
+    '''
+    Функция сохранения кода в файл.
+    ---
+    Параметры:\n
+    - source_path: str - Путь до исходного файла, который будет скопирован.\n
+    - destination_path: str - Путь, куда будет скопирован файл.
+    '''
 
-    file = open(name_of_file)
-
-    with open(path, mode="w") as save:
+    file = open(source_path)
+    with open(destination_path, mode="w") as save:
         for line in file:
             li=line.strip()
             if not li.startswith("#"):
                 save.write(line)
         save.write(f'\n# Generator.{SeedClass.seed = }')
+    file.close()
 
-
-def AverageAmountOfFields(*fields):
-    field = np.round(sum(fields) / len(fields)).astype(dtype="int32")
-    return field
-
-
-def UpScale(field: np.ndarray, scale: int = 1):
-    new_field = np.zeros([x * scale for x in field.shape], dtype="int32")
-    for i in range(scale):
-        for j in range(scale):
-            new_field[i::scale,j::scale] = field
-    return new_field
