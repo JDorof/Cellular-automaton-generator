@@ -1,18 +1,11 @@
 import Generator
-import time
-import numpy as np
 
 '''Генерация'''
 
-# B35678/S5678 - Диамёба
-# B3678/S34678 - День и ночь
-
-start = time.time()
-
-# Generator.SeedClass.ChangeSeed('0')
+Generator.SeedClass.ChangeSeed("aboba")
 print(f"{Generator.SeedClass.seed=}")
 
-sizes = (32, 32)
+sizes = (200, 200)
 directory = "results/"
 
 BirthDaN = [3, 4]
@@ -29,16 +22,11 @@ field = Generator.Blur(field, Generator.BlurClass.cross, target_values={2, 3, 4,
 field = Generator.ReplaceCells(field, [1], [10, 9])
 field = Generator.Blur(field, Generator.BlurClass.cross, target_values={9, 10}, iterations=1)
 
-
-print(time.time() - start)
-
-
-
 '''Сохранение результата'''
 
-Generator.SaveImage(field, directory + f"picture.png", Generator.GradientClass.black_orange_yellow_white)
-# Generator.SaveMatrix(field, directory + "matrix.txt")
+for i in range(5):
+    Generator.SaveImage(field, directory + f"picture{i}.png", Generator.GradientClass.all_gradients[i])
+Generator.SaveMatrix(field, directory + "matrix.txt")
 Generator.SaveCode("main.py", directory + "log.py")
 
-
-
+# Generator.SeedClass.seed = 'aboba'
