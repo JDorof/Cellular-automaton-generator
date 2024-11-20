@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.signal
+import scipy.ndimage
 import time
 import random
 from PIL import Image
@@ -367,7 +368,8 @@ def Blur(
         , blur_type: np.ndarray
         , target_values: set = set(range(1, 11))
         , iterations: int = 1
-        , boundary="wrap"
+        , boundary: str = "wrap"
+        , fillvalue: int = 0
         ) -> np.ndarray:
     
     '''
@@ -380,9 +382,9 @@ def Blur(
     - iterations: int - Количество итераций размытия.\n
     - boundary:\n
     Правило, указывающее на способ обработки границы:\n
-    - fill - дополняет входные массивы значением заполнения. (по умолчанию)\n
-    - wrap - круговые граничные условия.\n
-    - symm - симметричные граничные условия.
+    - fill - Значения за пределами массива считаются равными фиксированному значению, указанному параметром fillvalue (по умолчанию это 0).\n
+    - wrap - Циклическое продолжение, при котором границы соединяются, как будто массив закольцован.\n
+    - symm - Значения за пределами массива симметрично отражаются от границ массива.
     ---
     Возвращает:\n
     - np.ndarray - Матрица после размытия.
@@ -393,15 +395,57 @@ def Blur(
         blur_mask = np.isin(field, list(target_values))
 
         # Применяем размытие ко всему полю
-        blurred_field = scipy.signal.convolve2d(field, blur_type, mode='same', boundary=boundary)
+        blurred_field = scipy.signal.convolve2d(field, blur_type, mode='same', boundary=boundary, fillvalue=fillvalue)
 
         # Восстанавливаем оригинальные значения на местах, которые не подлежат размытию
         blurred_field[~blur_mask] = field[~blur_mask]
 
         # Округляем значения и приводим их к целым числам
-        field = np.round(blurred_field).astype(dtype="int32")
+        blurred_field = np.round(blurred_field).astype(dtype="int32")
 
-    return np.round(field).astype(dtype="int32")
+    return blurred_field
+
+
+def MedianFilter(
+        field: np.ndarray
+        , kernel_size: int
+        , target_values: set = set(range(1, 11))
+        , iterations: int = 1
+        , boundary: str = "wrap"
+        , cval: int = 0
+        ) -> np.ndarray:
+    
+    '''
+    Функция, примняющая медианный фильтр к матрице массива с сохранением значений, не входящих в список target_values.
+    ---
+    Параметры:\n
+    - field: np.ndarray - Матрица, которую нужно размыть.\n
+    - kernel_size: int - Размер фильтра.\n
+    - target_values: list - Список значений, которые должны быть размыты. Значения, не входящие в этот список, остаются неизменными.\n
+    - iterations: int - Количество итераций размытия.\n
+    - boundary:\n
+    Правило, указывающее на способ обработки границы:\n
+    - reflect - Значения на границах повторяются в зеркальном отображении.\n
+    - constant - За пределами массива используется фиксированное значение, определяемое параметром cval (по умолчанию 0).\n
+    - nearest - Используются ближайшие значения к границе.\n
+    - mirror - Похож на reflect, но с небольшим отличием: границы повторяются так, как будто массив зеркально отображается без повторения самого края.\n
+    - wrap - Циклическое продолжение, при котором границы соединяются, как будто массив закольцован.
+    ---
+    Возвращает:\n
+    - np.ndarray - Матрица после размытия.
+    '''
+    
+    for _ in range(iterations):
+        # Создаем маску для клеток, которые будут заменены медианным фильтром
+        median_mask = np.isin(field, list(target_values))
+        
+        # Применяем медианный фильтр
+        medfilt_field = scipy.ndimage.median_filter(field,size=kernel_size, mode=boundary, cval=cval)
+        
+        # Восстанавливаеем оригинальные значения на местах, которые не подлежат изменению фильтром
+        medfilt_field[~median_mask] = field[~median_mask]    
+    
+    return medfilt_field
 
 
 def UpdateField(
@@ -412,6 +456,7 @@ def UpdateField(
                 , survive_rule: list
                 , neighborhood_kernel: np.ndarray
                 , boundary: str = "wrap"
+                , fillvalue: int = 0
                 ) -> np.ndarray:
     
     '''
@@ -419,16 +464,16 @@ def UpdateField(
     ---
     Параметры:\n
     - grid: np.ndarray - Исходное поле, представляющее собой матрицу чисел.\n
-    - live_cell_value: int - Значение, обозначающее "живую" клетку.\n
-    - dead_cell_value: int - Значение, обозначающее "мертвую" клетку.\n
+    - live_cell_value: int - Значение, обозначающее "живую" клетку. (от 1 до 10)\n
+    - dead_cell_value: int - Значение, обозначающее "мертвую" клетку. (от 1 до 10)\n
     - birth_rule: list - Множество, в котором хранится кол-во соседей, при которых "мертвая" клетка "оживает".\n
     - survive_rule: list - Множество, в котором хранится кол-во соседей, при которых "живая" клетка остается "живой".\n
     - neighborhood_kernel: np.ndarray - Ядро свертки, определяющее соседство клеток. Квадратная матрица нечетных размеров, где единицы обозначают клетки, учитываемые при расчете соседства, а нули - не учитываемые.\n
     - boundary:\n
     Правило, указывающее на способ обработки границы:\n
-    - fill - дополняет входные массивы значением заполнения. (по умолчанию)\n
-    - wrap - круговые граничные условия.\n
-    - symm - симметричные граничные условия.
+    - fill -  Значения за пределами массива считаются равными фиксированному значению, указанному параметром fillvalue (по умолчанию это 0).\n
+    - wrap - Циклическое продолжение, при котором границы соединяются, как будто массив закольцован.\n
+    - symm - Значения за пределами массива симметрично отражаются от границ массива.
     ---
     Возвращает:\n
     - np.ndarray - Обновленная матрица.
@@ -438,7 +483,7 @@ def UpdateField(
     live_cell_mask = (grid == live_cell_value)
 
     # Применяем ядро свертки для подсчета соседей
-    neighbor_counts = scipy.signal.convolve2d(live_cell_mask, neighborhood_kernel, mode='same', boundary=boundary)
+    neighbor_counts = scipy.signal.convolve2d(live_cell_mask, neighborhood_kernel, mode='same', boundary=boundary, fillvalue=fillvalue)
 
     # Определяем маски для клеток, которые должны "родиться" и "выжить"
     birth_mask = (grid == dead_cell_value) & np.isin(neighbor_counts, birth_rule) 
@@ -463,6 +508,7 @@ def RunAutomaton(
                 , num_iterations: int
                 , neighborhood_kernel: np.ndarray
                 , boundary: str = "wrap"
+                , fillvalue: int = 0
                 ) -> np.ndarray:
     
     '''
@@ -470,25 +516,26 @@ def RunAutomaton(
     ---
     Параметры:\n
     - grid: np.ndarray - Исходное поле, представляющее собой матрицу чисел.\n
-    - live_cell_value: int - Значение, обозначающее "живую" клетку.\n
-    - dead_cell_value: int - Значение, обозначающее "мертвую" клетку.\n
+    - live_cell_value: int - Значение, обозначающее "живую" клетку. (от 1 до 10)\n
+    - dead_cell_value: int - Значение, обозначающее "мертвую" клетку. (от 1 до 10)\n
     - birth_rule: list - Множество, в котором хранится кол-во соседей, при которых "мертвая" клетка "оживает".\n
     - survive_rule: list - Множество, в котором хранится кол-во соседей, при которых "живая" клетка остается "живой".\n
     - num_iterations: int - Количество итераций для выполнения клеточного автомата.\n
     - neighborhood_kernel: np.ndarray - Ядро свертки, определяющее соседство клеток. Квадратная матрица нечетных размеров, где единицы обозначают клетки, учитываемые при расчете соседства, а нули - не учитываемые.\n
     - boundary:\n
     Правило, указывающее на способ обработки границы:\n
-    - fill - дополняет входные массивы значением заполнения. (по умолчанию)\n
-    - wrap - круговые граничные условия.\n
-    - symm - симметричные граничные условия.
+    - fill -  Значения за пределами массива считаются равными фиксированному значению, указанному параметром fillvalue (по умолчанию это 0).\n
+    - wrap - Циклическое продолжение, при котором границы соединяются, как будто массив закольцован.\n
+    - symm - Значения за пределами массива симметрично отражаются от границ массива.
     ---
     Возвращает\n
     - np.ndarray - Матрица после выполнения всех итераций клеточного автомата.
     '''
 
     for _ in range(num_iterations):
-        grid = UpdateField(grid, live_cell_value, dead_cell_value, birth_rule
-                           , survive_rule, neighborhood_kernel, boundary=boundary)
+        grid = UpdateField(grid, live_cell_value, dead_cell_value
+                           , birth_rule, survive_rule, neighborhood_kernel
+                           , boundary=boundary, fillvalue=fillvalue)
 
     return grid
 
@@ -604,4 +651,6 @@ def SaveCode(source_path: str, destination_path: str):
                 save.write(line)
         save.write(f'\n# Generator.{SeedClass.seed = }')
     file.close()
+
+
 

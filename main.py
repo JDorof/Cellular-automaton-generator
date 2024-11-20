@@ -9,25 +9,30 @@ import numpy as np
 
 start = time.time()
 
-# Generator.SeedClass.ChangeSeed('0')
+Generator.SeedClass.ChangeSeed('1732048593.5517836')
 print(f"{Generator.SeedClass.seed=}")
 
-sizes = (32, 32)
-directory = "results/"
+directory = ""
 
-BirthDaN = [3, 4]
-SurviveDaN = [3, 4]
+BirthDaN = [3, 6, 7, 8]
+SurviveDaN = [3, 4, 6, 7, 8]
+
+sizes = (1000, 1000)
 
 field = Generator.InitializeField([10, 1], sizes)
-field = Generator.RunAutomaton(field, 10, 1, BirthDaN, SurviveDaN, 10, Generator.NeighborhoodClass.cross)
-field = Generator.RunAutomaton(field, 10, 1, [4], [0, 1, 2, 3, 4, 5], 1, Generator.NeighborhoodClass.plus)
-field = Generator.RunAutomaton(field, 10, 1, [2], [0, 1, 2, 3, 4, 5], 1, Generator.NeighborhoodClass.plus)
-field = Generator.Blur(field, Generator.BlurClass.cross, iterations=4)
-field = Generator.ReplaceCells(field, [1], [10, 9])
-field = Generator.ReplaceCells(field, [2], [1])
-field = Generator.Blur(field, Generator.BlurClass.cross, target_values={2, 3, 4, 5, 6, 7, 8, 9, 10}, iterations=4)
-field = Generator.ReplaceCells(field, [1], [10, 9])
-field = Generator.Blur(field, Generator.BlurClass.cross, target_values={9, 10}, iterations=1)
+# field = Generator.RunAutomaton(field, 10, 1, BirthDaN, SurviveDaN, 200, Generator.NeighborhoodClass.moore_neighborhood_1order)
+# field = Generator.ReplaceCells(field, replace=[1], to=[3], p=0.5)
+# field = Generator.RunAutomaton(field, 3, 1, BirthDaN, SurviveDaN, 25, Generator.NeighborhoodClass.moore_neighborhood_1order)
+# field = Generator.ReplaceCells(field, replace=[10], to=[8], p=0.5)
+# field = Generator.RunAutomaton(field, 8, 10, BirthDaN, SurviveDaN, 25, Generator.NeighborhoodClass.moore_neighborhood_1order)
+# field = Generator.ReplaceCells(field, replace=[10], to=[1], p=1)
+# field = Generator.ReplaceCells(field, replace=[5, 6, 7, 8], to=[9], p=0.9)
+# field = Generator.Blur(field, Generator.BlurClass.cross, target_values={1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, iterations=30)
+
+
+field = Generator.MedianFilter(field, 5, iterations=10)
+field = Generator.Blur(field, Generator.BlurClass.cross, target_values={1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, iterations=10)
+field = Generator.MedianFilter(field, 5, iterations=10)
 
 
 print(time.time() - start)
@@ -36,9 +41,10 @@ print(time.time() - start)
 
 '''Сохранение результата'''
 
+# Generator.SaveImage(field, directory + f"picture.png", [x for x  in reversed(Generator.GradientClass.black_orange_yellow_white)])
 Generator.SaveImage(field, directory + f"picture.png", Generator.GradientClass.black_orange_yellow_white)
 # Generator.SaveMatrix(field, directory + "matrix.txt")
-Generator.SaveCode("main.py", directory + "log.py")
+# Generator.SaveCode("main.py", directory + "log.py")
 
 
 
