@@ -346,7 +346,7 @@ def ReplaceCells(
     - replace: list - Список типов клеток, которые нужно заменить.\n
     - to: list - Список типов клеток, на которые будут заменены целевые клетки.\n
     - p: float - Вероятность замены клеток, значение от 0 до 1.
-    - mask: np.ndarray - Маска, где будут происходить замены. 
+    - mask: np.ndarray - Маска, где будут происходить замены (1 - True, 0 - False). 
     ---
     Возвращает:\n
     - np.ndarray - Матрица с замененными клетками.\n
@@ -359,9 +359,9 @@ def ReplaceCells(
     
     # Создаем маску для клеток, которые должны быть заменены
     mask_to_replace = np.isin(field, replace)
-    mask_to_replace[~mask] = 0
 
     if np.any(mask_to_replace):
+        mask_to_replace[~mask] = 0
         field_after = field.copy()
         # Определяем, какие из клеток для замены будут заменены на новые типы с заданной вероятностью
         mask_to_replace[mask_to_replace] = np.random.choice([False, True], p=[1 - p, p], size=mask_to_replace.sum())
@@ -402,20 +402,23 @@ def Blur(
     - np.ndarray - Матрица после размытия.
     '''
 
+    field_copy = field.copy()
+    
+    # Создаем маску для клеток, которые нужно размыть
+    blur_mask = np.isin(field_copy, list(target_values))
+    
     for _ in range(iterations):
-        # Создаем маску для клеток, которые нужно размыть
-        blur_mask = np.isin(field, list(target_values))
 
         # Применяем размытие ко всему полю
-        blurred_field = scipy.signal.convolve2d(field, blur_type, mode='same', boundary=boundary, fillvalue=fillvalue)
+        blurred_field = scipy.signal.convolve2d(field_copy, blur_type, mode='same', boundary=boundary, fillvalue=fillvalue)
 
         # Восстанавливаем оригинальные значения на местах, которые не подлежат размытию
-        blurred_field[~blur_mask] = field[~blur_mask]
+        blurred_field[~blur_mask] = field_copy[~blur_mask]
 
-        # Округляем значения и приводим их к целым числам
-        blurred_field = np.round(blurred_field).astype(dtype="int32")
+        field_copy = blurred_field.copy()
 
-    return blurred_field
+    # Округляем значения и приводим их к целым числам
+    return np.round(blurred_field).astype(dtype="int32")
 
 
 def MedianFilter(
@@ -447,15 +450,20 @@ def MedianFilter(
     - np.ndarray - Матрица после размытия.
     '''
     
+    field_copy = field.copy()
+
+    # Создаем маску для клеток, которые будут заменены медианным фильтром
+    median_mask = np.isin(field, list(target_values))
+    
     for _ in range(iterations):
-        # Создаем маску для клеток, которые будут заменены медианным фильтром
-        median_mask = np.isin(field, list(target_values))
         
         # Применяем медианный фильтр
-        medfilt_field = scipy.ndimage.median_filter(field,size=kernel_size, mode=boundary, cval=cval)
+        medfilt_field = scipy.ndimage.median_filter(field_copy,size=kernel_size, mode=boundary, cval=cval)
         
         # Восстанавливаеем оригинальные значения на местах, которые не подлежат изменению фильтром
-        medfilt_field[~median_mask] = field[~median_mask]    
+        medfilt_field[~median_mask] = field_copy[~median_mask]
+
+        field_copy = medfilt_field.copy()
     
     return medfilt_field
 
