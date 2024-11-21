@@ -4,8 +4,6 @@ import numpy as np
 
 '''Генерация'''
 
-# B35678/S5678 - Диамёба
-# B3678/S34678 - День и ночь
 
 start = time.time()
 
@@ -37,11 +35,9 @@ field2 = Generator.UpScale(field2, 5)
 
 mask = np.isin(field2, [10, 9, 8,7,6,5,4])
 
-# field3 = Generator.ReplaceCells(field1, range(1,11), [1,2,3])
 field3 = Generator.ReplaceCells(field1, range(1,11), [1], mask=mask)
 field3 = Generator.MedianFilter(field3, 5, iterations=5)
 
-# field3 = Generator.AverageAmountOfFields(field1, field3, field3, field3, field3, field3)
 field3 = Generator.Blur(field3, blur_type=Generator.BlurClass.standart5x5, iterations=5)
 
 print(time.time() - start)
@@ -50,12 +46,12 @@ print(time.time() - start)
 
 '''Сохранение результата'''
 
-# Generator.SaveImage(field, directory + f"picture.png", [x for x  in reversed(Generator.GradientClass.black_orange_yellow_white)])
 Generator.SaveImage(field1, directory + f"picture1.png", Generator.GradientClass.black_orange_yellow_white)
 Generator.SaveImage(field2, directory + f"picture2.png", Generator.GradientClass.black_orange_yellow_white)
 Generator.SaveImage(field3, directory + f"picture3.png", Generator.GradientClass.black_orange_yellow_white)
-# Generator.SaveMatrix(field, directory + "matrix.txt")
 Generator.SaveCode("main.py", directory + "log.py")
 
 
 
+
+# Generator.SeedClass.seed = '1732048593.5517836'

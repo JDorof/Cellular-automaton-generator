@@ -335,6 +335,7 @@ def ReplaceCells(
         , replace: list
         , to: list
         , p: float = 1.0
+        , mask: np.ndarray = None
         ) -> np.ndarray:
 
     '''
@@ -345,22 +346,33 @@ def ReplaceCells(
     - replace: list - Список типов клеток, которые нужно заменить.\n
     - to: list - Список типов клеток, на которые будут заменены целевые клетки.\n
     - p: float - Вероятность замены клеток, значение от 0 до 1.
+    - mask: np.ndarray - Маска, где будут происходить замены. 
     ---
     Возвращает:\n
     - np.ndarray - Матрица с замененными клетками.\n
     '''
 
+    if mask is None:
+        mask = np.ones(field.shape)
+    
+    mask = np.isin(mask, 1)
+    
     # Создаем маску для клеток, которые должны быть заменены
-    mask = np.isin(field, replace)
+    mask_to_replace = np.isin(field, replace)
+    mask_to_replace[~mask] = 0
 
-    if np.any(mask):
+    if np.any(mask_to_replace):
+        field_after = field.copy()
         # Определяем, какие из клеток для замены будут заменены на новые типы с заданной вероятностью
-        mask[mask] = np.random.choice([False, True], p=[1 - p, p], size=mask.sum())
+        mask_to_replace[mask_to_replace] = np.random.choice([False, True], p=[1 - p, p], size=mask_to_replace.sum())
 
         # Генерируем новые значения для замены
-        field[mask] = np.random.choice(list(to), size=mask.sum())
+        field_after[mask_to_replace] = np.random.choice(list(to), size=mask_to_replace.sum())
 
+        return field_after
+    
     return field
+
 
 
 def Blur(
