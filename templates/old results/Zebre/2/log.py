@@ -17,7 +17,7 @@ SurviveDaN = [7, 6, 5]
 
 field = Generator.InitializeField([10, 1], sizes)
 field = Generator.RunAutomaton(field, 10, 1, BirthDaN, SurviveDaN, 5, np.logical_or(Generator.NeighborhoodClass.cross,  Generator.NeighborhoodClass.horizontal).astype("int32"))
-# field = Generator.Blur(field, Generator.BlurClass.standart3x3, iterations=3)
+# field = Generator.Blur(field, Generator.BlurClass.standart3x3, iterations=1)
 
 '''Сохранение результата'''
 

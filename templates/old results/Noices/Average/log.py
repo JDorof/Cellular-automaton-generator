@@ -16,18 +16,18 @@ gradient = Generator.GradientClass.black_orange_yellow_white
 gradient.reverse()
 
 field = Generator.InitializeField([10, 10, 1, 1, 1], sizes)
-field = Generator.Blur(field, blur_type=Generator.BlurClass.cross, iterations=2)
+field = Generator.Blur(field, blur_type=Generator.BlurClass.cross, iterations=1)
 field = Generator.UpScale(field, scale=10)
 field1 = Generator.InitializeField([6, 1], (1000, 1000))
 field = Generator.AverageAmountOfFields(field, field1)
-field = Generator.Blur(field, blur_type=Generator.BlurClass.standart5x5, iterations=2)
+field = Generator.Blur(field, blur_type=Generator.BlurClass.standart5x5, iterations=1)
 Generator.SaveImage(field, directory + f"picture1.png", gradient)
 
 
 field = Generator.InitializeField([10, 1], sizes)
-field = Generator.Blur(field, Generator.BlurClass.plus, iterations=2)
+field = Generator.Blur(field, Generator.BlurClass.plus, iterations=1)
 field2 = Generator.InitializeField([10, 1], (1000, 1000))
-field2 = Generator.Blur(field2, Generator.BlurClass.plus, iterations=2)
+field2 = Generator.Blur(field2, Generator.BlurClass.plus, iterations=1)
 field = Generator.UpScale(field, scale=10)
 field = Generator.AverageAmountOfFields(field, field2)
 Generator.SaveImage(field, directory + f"picture2.png", gradient)

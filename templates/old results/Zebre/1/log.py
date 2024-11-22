@@ -17,7 +17,7 @@ field = Generator.InitializeField([10, 1, 1, 1, 1], (200, 200))
 for i in range(200):
     field = Generator.UpdateField(field, 10, 1, [1, 2], [1, 2, 3], Generator.NeighborhoodClass.horizontal_1order)
     field = Generator.UpdateField(field, 10, 1, [1, 2], [1, 2, 3], Generator.NeighborhoodClass.vertical_2order)
-field = Generator.Blur(field, Generator.BlurClass.cross, iterations=5)
+field = Generator.Blur(field, Generator.BlurClass.cross, iterations=1)
 
 print(time.time() - start)
 
