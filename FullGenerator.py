@@ -479,10 +479,8 @@ def Blur(
 def MedianFilter(
         field: list
         , kernel_size: int
-        , target_values: set = set(range(1, 11))
+        , target_values: list = list(range(1,11))
         , iterations: int = 1
-        , boundary: str = "wrap"
-        , cval: int = 0
         ) -> list:
     
     '''
@@ -502,25 +500,39 @@ def MedianFilter(
     - wrap - Циклическое продолжение, при котором границы соединяются, как будто массив закольцован.
     ---
     Возвращает:\n
-    - list - Матрица после размытия.
+    - list
+      - Матрица после размытия.
     '''
-    
-    field_copy = field.copy()
 
-    # Создаем маску для клеток, которые будут заменены медианным фильтром
-    median_mask = np.isin(field, list(target_values))
+    field_copy = []
+    next_field = []
+    field_height = len(field) 
+    field_width = len(field[0])
+
+    for y in range(field_height):
+        field_copy.append(field[y].copy())
     
     for _ in range(iterations):
-        
-        # Применяем медианный фильтр
-        medfilt_field = scipy.ndimage.median_filter(field_copy,size=kernel_size, mode=boundary, cval=cval)
-        
-        # Восстанавливаеем оригинальные значения на местах, которые не подлежат изменению фильтром
-        medfilt_field[~median_mask] = field_copy[~median_mask]
+        for y in range(field_width):
+            # Создаем копию поля для вычислений
+            next_field.append(field[y].copy())
+            for x in range(field_width):
+                median_list = []
+                if field_copy[y][x] not in target_values:
+                    continue
+                for ky in range(-(kernel_size//2), (kernel_size//2) + 1):
+                    for kx in range(-(kernel_size//2), (kernel_size//2) + 1):
+                        ny = (y + ky) % field_height  # Закольцованная координата по вертикали
+                        nx = (x + kx) % field_width  # Закольцованная координата по горизонтали
+                        median_list.append(field_copy[ny][nx])
+                next_field[y][x] = sorted(median_list)[(kernel_size*kernel_size)//2]
+        # Обновление текущего состояния поля
+        field_copy = []
+        for y in range(field_width):
+            field_copy.append(next_field[y].copy())
 
-        field_copy = medfilt_field.copy()
-    
-    return medfilt_field
+    return field_copy
+
 
 
 

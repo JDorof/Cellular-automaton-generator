@@ -34,6 +34,7 @@ field1 = fg.InitializeField([1, 9], sizes)
 Generator.SaveMatrix(field1, "matrix1.md")
 field1 = fg.RunAutomaton(field1, 9, 1, BirthDaN, SurviveDaN, iterations, fg.NeighborhoodClass.moore_neighborhood_1order)
 field1 = fg.Blur(field1, fg.BlurClass.cross, iterations=3)
+field1 = fg.MedianFilter(field1, 5, iterations=3, target_values=[1])
 
 
 SaveImage(field1, "picture1.png", Generator.GradientClass.black_orange_yellow_white)
@@ -43,6 +44,7 @@ SaveImage(field1, "picture1.png", Generator.GradientClass.black_orange_yellow_wh
 field2 = Generator.LoadMatrix("matrix1.md")
 field2 = Generator.RunAutomaton(field2, 9, 1, BirthDaN, SurviveDaN, iterations, Generator.NeighborhoodClass.moore_neighborhood_1order)
 field2 = Generator.Blur(field2, Generator.BlurClass.cross, iterations=3)
+field2 = Generator.MedianFilter(field2, 5, iterations=3, target_values={1})
 
 
 
