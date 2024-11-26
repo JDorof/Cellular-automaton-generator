@@ -17,7 +17,7 @@ directory = ""
 BirthDaN = [3, 6, 7, 8]
 SurviveDaN = [3, 4, 6, 7, 8]
 
-sizes = (100, 500)
+sizes = (100, 100)
 
 field = Generator.InitializeField([10, 1], sizes)
 field = Generator.RunAutomaton(field, 10, 1, [3, 6, 7, 8], [3, 4, 6, 7, 8], 200, Generator.NeighborhoodClass.moore_neighborhood_1order)
