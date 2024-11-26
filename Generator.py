@@ -26,7 +26,6 @@ class NeighborhoodClass:
     учитываемые при расчете соседства, а нули - не учитываемые.
     '''
 
-
     standart3x3 = np.ones((3, 3), dtype=int)
     '''
     1 1 1\n
@@ -109,7 +108,6 @@ class BlurClass:
     '''
     Класс, в котором храняться ядра свертки для размытия.
     '''
-
     # сумма всех элементов должа быть равна 1
 
     standart3x3 = np.array([
@@ -181,7 +179,6 @@ class BlurClass:
     [0.15, 0.4, 0.15],\n
     [0.0, 0.15, 0.0]]
     '''
-
 
     outside_standart = np.array([
         [0.083333, 0.166666, 0.083333],
@@ -283,7 +280,6 @@ class GradientClass:
     Класс, в котором хранятся разные градиенты
     и функции чтения и записи этих градиентов
     '''
-
 
     black_to_white = [(0, 0, 0), (28, 28, 28), (56, 56, 56), (85, 85, 85), (113, 113, 113), (141, 141, 141), (170, 170, 170), (198, 198, 198), (226, 226, 226), (255, 255, 255)]
     ocean_beach_forest = [(5, 6, 27), (11, 15, 134), (25, 68, 178), (60, 143, 215), (60, 208, 215), (237, 255, 68), (79, 255, 0), (70, 200, 11), (29, 145, 32), (9, 110, 12)]
@@ -423,7 +419,7 @@ def Blur(
         # Восстанавливаем оригинальные значения на местах, которые не подлежат размытию
         blurred_field[~blur_mask] = field_copy[~blur_mask]
 
-        field_copy = blurred_field.copy()
+        field_copy = np.round(blurred_field).astype(dtype="int32")
 
     # Округляем значения и приводим их к целым числам
     return np.round(blurred_field).astype(dtype="int32")
@@ -568,7 +564,7 @@ def RunAutomaton(
     return field
 
 
-def AverageAmountOfFields(*fields):
+def AverageAmountOfFields(*fields) -> np.ndarray:
     '''
     Функция, которая складвает все матрицы, после деля каждое значение на кол-во матриц.
     ---
@@ -583,7 +579,7 @@ def AverageAmountOfFields(*fields):
     return field
 
 
-def UpScale(field: np.ndarray, scale: int = 1):
+def UpScale(field: np.ndarray, scale: int = 1) -> np.ndarray:
     '''
     Функция увеличения поля в целое число раз.
     ---
@@ -648,12 +644,12 @@ def SaveMatrix(field: np.ndarray, path: str):
     np.savetxt(path, field, delimiter=' ', fmt='%d')
 
 
-def LoadMatrix(path: str):
+def LoadMatrix(path: str)  -> np.ndarray:
     '''
     Функция загрузки матрицы из файла.
     ---
     Параметры:\n
-    - path: str - Путь сохранения.
+    - path: str - Путь файла.
     ---
     Возвращает:\n
     - np.ndarray - Загруженную матрицу.

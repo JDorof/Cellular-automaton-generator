@@ -371,6 +371,159 @@ def InitializeField(chances: list, shape: tuple) -> list:
     return field
 
 
+def ReplaceCells(
+        field: list
+        , replace: list
+        , to: list
+        , p: float = 1.0
+        , mask: list = None
+        ) -> list:
+
+    '''
+    Функция случайной замены клеток типов из target_types на типы из replacement_types с заданной вероятностью.
+    ---
+    Параметры:\n
+    - field: list - Массив, в котором производится замена клеток.\n
+    - replace: list - Список типов клеток, которые нужно заменить.\n
+    - to: list - Список типов клеток, на которые будут заменены целевые клетки.\n
+    - p: float - Вероятность замены клеток, значение от 0 до 1.
+    - mask: list - Маска, где будут происходить замены (1 - True, 0 - False). 
+    ---
+    Возвращает:\n
+    - list - Матрица с замененными клетками.\n
+    '''
+
+    field_height = len(field)
+    field_width = len(field[0])
+
+    # Создаем маску из 1, если она изначально не задана
+    if mask is None:
+        mask = []
+        for y in range(field_height):
+            mask.append([])
+            for x in range(field_width):
+                mask[y].append(1)
+        
+    field_after = []        
+    for y in range(field_height):
+        field_after.append([])
+        field_after[y] = field[y].copy()
+        for x in range(field_width):
+            if not (mask[y][x] and field[y][x] in replace):
+                continue
+                # mask[y][x] = 0
+            if random.random() <= p:
+                field_after[y][x] = to[random.randint(0, len(to) - 1)]
+
+    return field_after
+
+
+def Blur(
+        field: list
+        , blur_type: list
+        , target_values: list = list(range(1, 11))
+        , iterations: int = 1
+        ) -> list:
+    
+    '''
+    Функция для размытия числового массива с сохранением значений, не входящих в список target_values.
+    ---
+    Параметры:\n
+    - field: list - Матрица, которую нужно размыть.\n
+    - blur_type: list - Ядро свертки для размытия.\n
+    - target_values: list - Список значений, которые должны быть размыты. Значения, не входящие в этот список, остаются неизменными.\n
+    - iterations: int - Количество итераций размытия.\n
+    - boundary:\n
+    Правило, указывающее на способ обработки границы:\n
+    - fill - Значения за пределами массива считаются равными фиксированному значению, указанному параметром fillvalue (по умолчанию это 0).\n
+    - wrap - Циклическое продолжение, при котором границы соединяются, как будто массив закольцован.\n
+    - symm - Значения за пределами массива симметрично отражаются от границ массива.
+    ---
+    Возвращает:\n
+    - list - Матрица после размытия.
+    '''
+
+    blur_height = len(blur_type)
+    blur_width = len(blur_type[0])
+
+    field_copy = []
+    next_field = []
+    field_height = len(field) 
+    field_width = len(field[0])
+
+    for y in range(field_height):
+        field_copy.append(field[y].copy())
+    
+    for _ in range(iterations):
+        for y in range(field_width):
+            # Создаем копию поля для вычислений
+            next_field.append(field[y].copy())
+            for x in range(field_width):
+                convolve = 0
+                if field_copy[y][x] not in target_values:
+                    continue
+                for ky in range(-(blur_height//2), (blur_height//2) + 1):
+                    for kx in range(-(blur_width//2), (blur_width//2) + 1):
+                        ny = (y + ky) % field_height  # Закольцованная координата по вертикали
+                        nx = (x + kx) % field_width  # Закольцованная координата по горизонтали
+                        convolve += blur_type[ky + blur_height//2][kx + blur_width//2] * field_copy[ny][nx]
+                next_field[y][x] = round(convolve)
+        # Обновление текущего состояния поля
+        field_copy = []
+        for y in range(field_width):
+            field_copy.append(next_field[y].copy())
+
+    return field_copy
+
+
+def MedianFilter(
+        field: list
+        , kernel_size: int
+        , target_values: set = set(range(1, 11))
+        , iterations: int = 1
+        , boundary: str = "wrap"
+        , cval: int = 0
+        ) -> list:
+    
+    '''
+    Функция, примняющая медианный фильтр к матрице с сохранением значений, не входящих в список target_values.
+    ---
+    Параметры:\n
+    - field: list - Матрица, которую нужно размыть.\n
+    - kernel_size: int - Размер фильтра.\n
+    - target_values: list - Список значений, которые должны быть размыты. Значения, не входящие в этот список, остаются неизменными.\n
+    - iterations: int - Количество итераций размытия.\n
+    - boundary:\n
+    Правило, указывающее на способ обработки границы:\n
+    - reflect - Значения на границах повторяются в зеркальном отображении.\n
+    - constant - За пределами массива используется фиксированное значение, определяемое параметром cval (по умолчанию 0).\n
+    - nearest - Используются ближайшие значения к границе.\n
+    - mirror - Похож на reflect, но с небольшим отличием: границы повторяются так, как будто массив зеркально отображается без повторения самого края.\n
+    - wrap - Циклическое продолжение, при котором границы соединяются, как будто массив закольцован.
+    ---
+    Возвращает:\n
+    - list - Матрица после размытия.
+    '''
+    
+    field_copy = field.copy()
+
+    # Создаем маску для клеток, которые будут заменены медианным фильтром
+    median_mask = np.isin(field, list(target_values))
+    
+    for _ in range(iterations):
+        
+        # Применяем медианный фильтр
+        medfilt_field = scipy.ndimage.median_filter(field_copy,size=kernel_size, mode=boundary, cval=cval)
+        
+        # Восстанавливаеем оригинальные значения на местах, которые не подлежат изменению фильтром
+        medfilt_field[~median_mask] = field_copy[~median_mask]
+
+        field_copy = medfilt_field.copy()
+    
+    return medfilt_field
+
+
+
 def RunAutomaton(
                 field: list,
                 live_cell_value: int,
@@ -398,29 +551,27 @@ def RunAutomaton(
     
     field_copy = []
     next_field = []
-    field_width = len(field)
-    field_height = len(field[0])
+    field_height = len(field)
+    field_width = len(field[0])
     kernel_size = len(neighborhood_kernel)
     kernel_radius = kernel_size // 2
 
     # копирование массивов (без этого будет ошибки)
-    for y in range(field_width):
+    for y in range(field_height):
         field_copy.append(field[y].copy())
 
     # Выполнение указанного числа итераций
     for _ in range(num_iterations):
-        # Создаем копию поля для вычислений
-        for y in range(field_width):
+        for y in range(field_height):
+            # Создаем копию поля для вычислений
             next_field.append(field[y].copy())
-
-        for y in range(field_width):
-            for x in range(field_height):
+            for x in range(field_width):
                 # Подсчет живых соседей
                 live_neighbors = 0
                 for ky in range(-kernel_radius, kernel_radius + 1):
                     for kx in range(-kernel_radius, kernel_radius + 1):
-                        ny = (y + ky) % field_width  # Закольцованная координата по вертикали
-                        nx = (x + kx) % field_height  # Закольцованная координата по горизонтали
+                        ny = (y + ky) % field_height  # Закольцованная координата по вертикали
+                        nx = (x + kx) % field_width  # Закольцованная координата по горизонтали
                         if neighborhood_kernel[ky + kernel_radius][kx + kernel_radius] == 1:
                             if field_copy[ny][nx] == live_cell_value:
                                 live_neighbors += 1
@@ -443,7 +594,7 @@ def RunAutomaton(
     return field_copy
 
 
-def AverageAmountOfFields(*fields):
+def AverageAmountOfFields(*fields) -> list:
     '''
     Функция, которая складвает все матрицы, после деля каждое значение на кол-во матриц.
     ---
