@@ -1,5 +1,6 @@
 import random
 import time
+from PIL import Image
 
 # Файл генератора без использования сторонних библиотек
 # Немного обрезанный (все границы будут обрабатываться как wrap)
@@ -653,3 +654,87 @@ def UpScale(field: list, scale: int = 1) -> list:
 
 
 '''SaveLoad Functions'''
+
+
+def SaveImage(field: list, path: str, gradient: list):
+    '''
+    Функция сохранения матрицы в файл изображение.
+    ---
+    Параметры:\n
+    - field: list - Матрица для сохранения.\n
+    - path: str - Путь сохранения. \n
+    - gradietn: list - С каким градиентом будет сохранена матрица.
+    '''
+    sizes = (len(field), len(field[0]))
+    im = Image.new('RGB', sizes)
+    result = [field[y][x] for y in range(sizes[0]) for x in range(sizes[1])]
+    try:
+        for i in range(sizes[0] * sizes[1]):
+            result[i] = gradient[result[i] - 1]
+    except IndexError:
+        print("SaveImage function:")
+        print(f"ERROR: You have int values bigger than 'max index - 1': {result[i] - 1}")
+        exit()
+    im.putdata(result)
+    im.save(path)
+
+
+def SaveMatrix(field: list, path: str):
+    '''
+    Функция сохранения матрицы в файл.
+    ---
+    Параметры:\n
+    - field: list - Матрица для сохранения.\n
+    - path: str - Путь сохранения.
+    '''
+
+    with open(path, mode="w") as save:
+        for y in range(len(field)):
+            for x in range(len(field[0]) - 1):
+                save.write(str(field[y][x]) + ' ')
+            save.write(str(field[y][len(field[0]) - 1]) + '\n')
+
+
+def LoadMatrix(path: str) -> list:
+    '''
+    Функция загрузки матрицы из файла.
+    ---
+    Параметры:\n
+    - path: str - Путь файла.
+    ---
+    Возвращает:\n
+    - list - Загруженную матрицу.
+    '''
+
+    matrix = []
+    y = 0
+    with open(path, mode="r") as file:
+        for row in file:
+            matrix.append([])
+            row = row.split()
+            for element in row:
+                matrix[y].append(int(element))
+            y += 1
+    return matrix
+
+
+def SaveCode(source_path: str, destination_path: str):
+    '''
+    Функция сохранения кода в файл.
+    ---
+    Параметры:\n
+    - source_path: str - Путь до исходного файла, который будет скопирован.\n
+    - destination_path: str - Путь, куда будет скопирован файл.
+    '''
+
+    file = open(source_path)
+    with open(destination_path, mode="w") as save:
+        for line in file:
+            li=line.strip()
+            if not li.startswith("#"):
+                save.write(line)
+        save.write(f'\n# Generator.{SeedClass.seed = }')
+    file.close()
+
+
+

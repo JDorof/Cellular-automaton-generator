@@ -608,9 +608,6 @@ def SaveImage(field: np.ndarray, path: str, gradient: list):
     - field: np.ndarray - Матрица для сохранения.\n
     - path: str - Путь сохранения. \n
     - gradietn: list - С каким градиентом будет сохранена матрица.
-    ---
-    Возвращает:\n
-    - np.ndarray - Матрица после увеличения.
     '''
 
     sizes = field.shape
@@ -633,11 +630,7 @@ def SaveMatrix(field: np.ndarray, path: str):
     ---
     Параметры:\n
     - field: np.ndarray - Матрица для сохранения.\n
-    - path: str - Путь сохранения. \n
-    - gradietn: list - С каким градиентом будет сохранена матрица.
-    ---
-    Возвращает:\n
-    - np.ndarray - Матрица после увеличения.
+    - path: str - Путь сохранения.
     '''
 
     np.savetxt(path, field, delimiter=' ', fmt='%d')
