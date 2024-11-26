@@ -75,6 +75,14 @@ class NeighborhoodClass:
     0 0 0
     '''
     horizontal_1order[1][0] = horizontal_1order[1][2] = horizontal_1order[1][1] = 1
+    
+    vertical_1order = np.zeros((3, 3), dtype=int)
+    '''
+    0 1 0\n
+    0 1 0\n
+    0 1 0
+    '''
+    vertical_1order[0][1] = vertical_1order[1][1] = vertical_1order[2][1] = 1
 
     horizontal_2order = np.zeros((5, 5), dtype=int)
     '''
@@ -285,7 +293,7 @@ class GradientClass:
 
     all_gradients = [black_to_white, ocean_beach_forest, black_orange_yellow_white, dark_grey_brown, grass]
 
-    def ReadGradient(path: str):
+    def ReadGradient(path: str) -> list:
         '''
         Функция чтения градиента из файла
         ---
@@ -315,7 +323,7 @@ class GradientClass:
         to_save.save(path)
 
 
-def InitializeField(chances: list, shape: tuple):
+def InitializeField(chances: list, shape: tuple) -> np.ndarray:
     '''
     Функция случайного заполнения клеток числами из chances в матрицу с размерами shape.
     ---
@@ -431,7 +439,7 @@ def MedianFilter(
         ) -> np.ndarray:
     
     '''
-    Функция, примняющая медианный фильтр к матрице массива с сохранением значений, не входящих в список target_values.
+    Функция, примняющая медианный фильтр к матрице с сохранением значений, не входящих в список target_values.
     ---
     Параметры:\n
     - field: np.ndarray - Матрица, которую нужно размыть.\n
@@ -469,7 +477,7 @@ def MedianFilter(
 
 
 def UpdateField(
-                grid: np.ndarray
+                field: np.ndarray
                 , live_cell_value: int
                 , dead_cell_value: int
                 , birth_rule: list
@@ -483,7 +491,7 @@ def UpdateField(
     Обновляет состояние клеток в поле по заданным правилам.
     ---
     Параметры:\n
-    - grid: np.ndarray - Исходное поле, представляющее собой матрицу чисел.\n
+    - field: np.ndarray - Исходное поле, представляющее собой матрицу чисел.\n
     - live_cell_value: int - Значение, обозначающее "живую" клетку. (от 1 до 10)\n
     - dead_cell_value: int - Значение, обозначающее "мертвую" клетку. (от 1 до 10)\n
     - birth_rule: list - Множество, в котором хранится кол-во соседей, при которых "мертвая" клетка "оживает".\n
@@ -500,27 +508,27 @@ def UpdateField(
     '''
 
     # Создаем маску для клеток, которые считаются "живыми"
-    live_cell_mask = (grid == live_cell_value)
+    live_cell_mask = (field == live_cell_value)
 
     # Применяем ядро свертки для подсчета соседей
     neighbor_counts = scipy.signal.convolve2d(live_cell_mask, neighborhood_kernel, mode='same', boundary=boundary, fillvalue=fillvalue)
 
     # Определяем маски для клеток, которые должны "родиться" и "выжить"
-    birth_mask = (grid == dead_cell_value) & np.isin(neighbor_counts, birth_rule) 
-    survival_mask = (grid == live_cell_value) & np.isin(neighbor_counts, survive_rule)
+    birth_mask = (field == dead_cell_value) & np.isin(neighbor_counts, birth_rule) 
+    survival_mask = (field == live_cell_value) & np.isin(neighbor_counts, survive_rule)
 
     # Создаем копию поля для обновления
-    updated_grid = grid.copy()
+    updated_field = field.copy()
 
     # Обновляем состояния клеток
-    updated_grid[birth_mask] = live_cell_value
-    updated_grid[~survival_mask & live_cell_mask] = dead_cell_value
+    updated_field[birth_mask] = live_cell_value
+    updated_field[~survival_mask & live_cell_mask] = dead_cell_value
 
-    return updated_grid
+    return updated_field
 
 
 def RunAutomaton(
-                grid: np.ndarray
+                field: np.ndarray
                 , live_cell_value: int
                 , dead_cell_value: int
                 , birth_rule: list
@@ -535,7 +543,7 @@ def RunAutomaton(
     Запускает процесс клеточного автомата для заданного количества итераций.
     ---
     Параметры:\n
-    - grid: np.ndarray - Исходное поле, представляющее собой матрицу чисел.\n
+    - field: np.ndarray - Исходное поле, представляющее собой матрицу чисел.\n
     - live_cell_value: int - Значение, обозначающее "живую" клетку. (от 1 до 10)\n
     - dead_cell_value: int - Значение, обозначающее "мертвую" клетку. (от 1 до 10)\n
     - birth_rule: list - Множество, в котором хранится кол-во соседей, при которых "мертвая" клетка "оживает".\n
@@ -553,11 +561,11 @@ def RunAutomaton(
     '''
 
     for _ in range(num_iterations):
-        grid = UpdateField(grid, live_cell_value, dead_cell_value
+        field = UpdateField(field, live_cell_value, dead_cell_value
                            , birth_rule, survive_rule, neighborhood_kernel
                            , boundary=boundary, fillvalue=fillvalue)
 
-    return grid
+    return field
 
 
 def AverageAmountOfFields(*fields):
