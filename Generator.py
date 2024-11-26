@@ -378,7 +378,6 @@ def ReplaceCells(
     return field
 
 
-
 def Blur(
         field: np.ndarray
         , blur_type: np.ndarray

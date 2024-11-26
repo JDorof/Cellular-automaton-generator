@@ -27,26 +27,29 @@ iterations = 100
 
 mask = [[x%2 for x in range(sizes[1])] for y  in range(sizes[0])]
 
+
 field1 = fg.InitializeField([1, 9], sizes)
-
-
+field2 = fg.InitializeField([1, 9], (100,100))
 
 Generator.SaveMatrix(field1, "matrix1.md")
+Generator.SaveMatrix(field2, "matrix2.md")
+
 field1 = fg.RunAutomaton(field1, 9, 1, BirthDaN, SurviveDaN, iterations, fg.NeighborhoodClass.moore_neighborhood_1order)
-field1 = fg.Blur(field1, fg.BlurClass.cross, iterations=3)
-field1 = fg.MedianFilter(field1, 5, iterations=3, target_values=[1])
+field2 = fg.RunAutomaton(field2, 9, 1, BirthDaN, SurviveDaN, iterations, fg.NeighborhoodClass.moore_neighborhood_1order)
+field1 = fg.UpScale(field1, 2)
+
+field3 = fg.AverageAmountOfFields(field1, field2)
+
+SaveImage(field3, "picture1.png", Generator.GradientClass.black_orange_yellow_white)
 
 
-SaveImage(field1, "picture1.png", Generator.GradientClass.black_orange_yellow_white)
 
 
-
-field2 = Generator.LoadMatrix("matrix1.md")
+field1 = Generator.LoadMatrix("matrix1.md")
+field2 = Generator.LoadMatrix("matrix2.md")
+field1 = Generator.RunAutomaton(field1, 9, 1, BirthDaN, SurviveDaN, iterations, Generator.NeighborhoodClass.moore_neighborhood_1order)
+field1 = Generator.UpScale(field1, 2)
 field2 = Generator.RunAutomaton(field2, 9, 1, BirthDaN, SurviveDaN, iterations, Generator.NeighborhoodClass.moore_neighborhood_1order)
-field2 = Generator.Blur(field2, Generator.BlurClass.cross, iterations=3)
-field2 = Generator.MedianFilter(field2, 5, iterations=3, target_values={1})
+field3 = Generator.AverageAmountOfFields(field1, field2)
 
-
-
-Generator.SaveImage(field2, "picture2.png", Generator.GradientClass.black_orange_yellow_white)
-
+Generator.SaveImage(field3, "picture2.png", Generator.GradientClass.black_orange_yellow_white)
