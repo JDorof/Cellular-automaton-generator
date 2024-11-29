@@ -19,9 +19,9 @@ sizes = (200, 200)
 field = Generator.InitializeField([10, 1], sizes)
 
 
-field = Generator.MedianFilter(field, 5, iterations=10)
-field = Generator.Blur(field, Generator.BlurClass.cross, target_values={1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, iterations=1)
-field = Generator.MedianFilter(field, 5, iterations=10)
+field = Generator.MedianFilter(field, iterations=10)
+field = Generator.Blur(field, Generator.BlurClass.cross, iterations=10)
+field = Generator.MedianFilter(field, iterations=10, mode='mask')
 
 
 print(time.time() - start)

@@ -59,13 +59,24 @@ class NeighborhoodClass:
     '''
     plus[0][0] = plus[0][2] = plus[2][0] = plus[2][2] = 0
 
-    cross = np.ones((3, 3), dtype=int)
+    cross_1order = np.ones((3, 3), dtype=int)
     '''
     1 0 1\n
     0 1 0\n
     1 0 1
     '''
-    cross[0][1] = cross[1][0] = cross[1][2] = cross[2][1] = 0
+    cross_1order[0][1] = cross_1order[1][0] = cross_1order[1][2] = cross_1order[2][1] = 0
+
+    cross_2order = np.zeros((5, 5), dtype=int)
+    '''
+    1 0 0 0 1\n
+    0 1 0 1 0\n
+    0 0 1 0 0\ns
+    0 1 0 1 0\n
+    1 0 0 0 1
+    '''
+    cross_2order[0][0] = cross_2order[0][4] = cross_2order[4][0] = cross_2order[4][4] = 1
+    cross_2order[1][1] = cross_2order[1][3] = cross_2order[3][1] = cross_2order[3][3] = cross_2order[2][2] = 1
 
     horizontal_1order = np.zeros((3, 3), dtype=int)
     '''
@@ -425,47 +436,96 @@ def Blur(
 
 
 def MedianFilter(
-        field: np.ndarray
-        , kernel_size: int
-        , target_values: set = set(range(1, 11))
-        , iterations: int = 1
-        , boundary: str = "wrap"
-        , cval: int = 0
-        ) -> np.ndarray:
-    
+        field: np.ndarray,
+        kernel_mask: np.ndarray = None,
+        kernel_size: int = 3,
+        mode: str = "size",
+        target_values: list = list(range(1, 11)),
+        iterations: int = 1,
+        boundary: str = "wrap",
+        cval: int = 0
+    ) -> np.ndarray:
     '''
-    Функция, примняющая медианный фильтр к матрице с сохранением значений, не входящих в список target_values.
+    Функция, применяющая медианный фильтр к матрице с использованием маски и сохранением значений, не входящих в список target_values.
     ---
     Параметры:\n
-    - field: np.ndarray - Матрица, которую нужно размыть.\n
+    - field: np.ndarray - исходная матрица.\n
+    - kernel_mask: np.ndarray - Матрица из 0 и 1, определяющая форму фильтра.\n
     - kernel_size: int - Размер фильтра.\n
-    - target_values: list - Список значений, которые должны быть размыты. Значения, не входящие в этот список, остаются неизменными.\n
-    - iterations: int - Количество итераций размытия.\n
-    - boundary:\n
-    Правило, указывающее на способ обработки границы:\n
-    - reflect - Значения на границах повторяются в зеркальном отображении.\n
-    - constant - За пределами массива используется фиксированное значение, определяемое параметром cval (по умолчанию 0).\n
-    - nearest - Используются ближайшие значения к границе.\n
-    - mirror - Похож на reflect, но с небольшим отличием: границы повторяются так, как будто массив зеркально отображается без повторения самого края.\n
-    - wrap - Циклическое продолжение, при котором границы соединяются, как будто массив закольцован.
+    - mode: str\n
+      - size - применяет стандартный медианный фильтр. Для выполнения требуется kernel_size.\n
+      - mask - применяет модифицированный медианный фильтр с выбором соседей. Для выполнения требуется kernel_mask.\n
+    - target_values: set - Набор значений, которые будут изменены. Значения, не входящие в этот список, остаются неизменными.\n
+    - iterations: int - Количество итераций.\n
+    - boundary: str\n
+      Правило, указывающее на способ обработки границы:\n
+      - reflect - Значения на границах повторяются в зеркальном отображении.\n
+      - constant - За пределами массива используется фиксированное значение, определяемое параметром cval (по умолчанию 0).\n
+      - nearest - Используются ближайшие значения к границе.\n
+      - mirror - Похож на reflect, но с небольшим отличием: границы повторяются так, как будто массив зеркально отображается без повторения самого края.\n
+      - wrap - Циклическое продолжение, при котором границы соединяются, как будто массив закольцован.
     ---
     Возвращает:\n
-    - np.ndarray - Матрица после размытия.
+    - np.ndarray - матрица-результат.
     '''
     
     field_copy = field.copy()
-
-    # Создаем маску для клеток, которые будут заменены медианным фильтром
     median_mask = np.isin(field, list(target_values))
     
-    for _ in range(iterations):
-        
-        # Применяем медианный фильтр
-        medfilt_field = scipy.ndimage.median_filter(field_copy,size=kernel_size, mode=boundary, cval=cval)
-        
-        # Восстанавливаеем оригинальные значения на местах, которые не подлежат изменению фильтром
-        medfilt_field[~median_mask] = field_copy[~median_mask]
+    if mode == "size":
+        for _ in range(iterations):
 
+            medfilt_field = scipy.ndimage.median_filter(field_copy,size=kernel_size, mode=boundary, cval=cval)
+            medfilt_field[~median_mask] = field_copy[~median_mask]
+            field_copy = medfilt_field.copy()
+        
+        return medfilt_field
+
+    for _ in range(iterations):
+        medfilt_field = field_copy.copy()
+
+        for y in range(field_copy.shape[0]):
+            for x in range(field_copy.shape[1]):
+                neighborhood = []
+                for ky in range(-(kernel_mask.shape[0]//2), (kernel_mask.shape[0]//2) + 1):
+                    for kx in range(-(kernel_mask.shape[1]//2), (kernel_mask.shape[1]//2) + 1):
+                        ny = y + ky
+                        nx = x + kx
+                        if boundary == "wrap":
+                            ny %= field_copy.shape[0]
+                            nx %= field_copy.shape[1]
+                        elif boundary == "reflect":
+                            ny = abs(ny) if ny < 0 else (2 * field_copy.shape[0] - ny - 1 if ny >= field_copy.shape[0] else ny)
+                            nx = abs(nx) if nx < 0 else (2 * field_copy.shape[1] - nx - 1 if nx >= field_copy.shape[1] else nx)
+                        elif boundary == "constant":
+                            if ny < 0 or nx < 0 or ny >= field_copy.shape[0] or nx >= field_copy.shape[1]:
+                                if kernel_mask[ky + kernel_mask.shape[0]//2][kx + kernel_mask.shape[1]//2]:
+                                    neighborhood.append(cval)
+                                continue
+                        elif boundary == "nearest":
+                            ny = max(0, min(field_copy.shape[0] - 1, ny))
+                            nx = max(0, min(field_copy.shape[1] - 1, nx))
+                        elif boundary == "mirror":
+                            ny = ny if ny >= 0 else -ny - 1
+                            nx = nx if nx >= 0 else -nx - 1
+                            ny = ny % (2 * field_copy.shape[0])
+                            nx = nx % (2 * field_copy.shape[1])
+                            if ny >= field_copy.shape[0]:
+                                ny = 2 * field_copy.shape[0] - ny - 1
+                            if nx >= field_copy.shape[1]:
+                                nx = 2 * field_copy.shape[1] - nx - 1
+
+                        if kernel_mask[ky + kernel_mask.shape[0]//2][kx + kernel_mask.shape[1]//2] == 1:
+                            neighborhood.append(field_copy[ny, nx])
+                        # print(ky + kernel_mask.shape[0]//2, kx + kernel_mask.shape[1]//2, field_copy[ny, nx], end=" | ")
+
+                medfilt_field[y][x] = sorted(neighborhood)[len(neighborhood)//2]
+                # print('\n',f"{y = }, {x = }, {field_copy[y][x] = }, {medfilt_field[y][x] = }" )
+            #     print(f"{medfilt_field[y][x]}", end=" ")
+            # print()
+        medfilt_field[~median_mask] = field_copy[~median_mask]
+        # print(medfilt_field)
+        # print(median_mask)
         field_copy = medfilt_field.copy()
     
     return medfilt_field

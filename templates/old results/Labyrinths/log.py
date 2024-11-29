@@ -17,6 +17,7 @@ SurviveDaN = [1, 2]
 field = Generator.InitializeField([10, 1], sizes)
 field = Generator.RunAutomaton(field, 10, 1, BirthDaN, SurviveDaN, 50, Generator.NeighborhoodClass.plus)
 field = Generator.RunAutomaton(field, 10, 1, [3, 4], [1, 2, 3, 4, 5], 10, Generator.NeighborhoodClass.plus)
+# field = Generator.MedianFilter(field, 3, iterations=1)
 
 '''Сохранение результата'''
 
