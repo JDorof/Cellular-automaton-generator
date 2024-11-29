@@ -370,10 +370,8 @@ def ReplaceCells(
     if mask is None:
         mask = np.ones(field.shape)
     
-    mask = np.isin(mask, 1)
-    
     # Создаем маску для клеток, которые должны быть заменены
-    mask_to_replace = np.isin(field, replace)
+    mask_to_replace = np.isin(field, replace) & (mask == 1)
 
     if np.any(mask_to_replace):
         mask_to_replace[~mask] = 0
@@ -436,14 +434,15 @@ def Blur(
 
 
 def MedianFilter(
-        field: np.ndarray,
-        kernel_mask: np.ndarray = None,
-        kernel_size: int = 3,
-        mode: str = "size",
-        target_values: list = list(range(1, 11)),
-        iterations: int = 1,
-        boundary: str = "wrap",
-        cval: int = 0
+        field: np.ndarray
+        , kernel_mask: np.ndarray = None
+        , kernel_size: int = 3
+        , mode: str = "size"
+        , target_values: list = list(range(1, 11))
+        , iterations: int = 1
+        , boundary: str = "wrap"
+        , cval: int = 0
+        , mask: np.ndarray = None
     ) -> np.ndarray:
     '''
     Функция, применяющая медианный фильтр к матрице с использованием маски и сохранением значений, не входящих в список target_values.
@@ -463,15 +462,19 @@ def MedianFilter(
       - constant - За пределами массива используется фиксированное значение, определяемое параметром cval (по умолчанию 0).\n
       - nearest - Используются ближайшие значения к границе.\n
       - mirror - Похож на reflect, но с небольшим отличием: границы повторяются так, как будто массив зеркально отображается без повторения самого края.\n
-      - wrap - Циклическое продолжение, при котором границы соединяются, как будто массив закольцован.
+      - wrap - Циклическое продолжение, при котором границы соединяются, как будто массив закольцован.\n
+    - mask: np.ndarray - маска значений, которые будут изменены.
     ---
     Возвращает:\n
     - np.ndarray - матрица-результат.
     '''
     
+    if mask is None:
+        mask = np.ones(field.shape)
+
     field_copy = field.copy()
-    median_mask = np.isin(field, list(target_values))
-    
+    median_mask = np.isin(field, list(target_values)) & (mask == 1)
+
     if mode == "size":
         for _ in range(iterations):
 
@@ -531,57 +534,6 @@ def MedianFilter(
     return medfilt_field
 
 
-def UpdateField(
-                field: np.ndarray
-                , live_cell_value: int
-                , dead_cell_value: int
-                , birth_rule: list
-                , survive_rule: list
-                , neighborhood_kernel: np.ndarray
-                , boundary: str = "wrap"
-                , fillvalue: int = 0
-                ) -> np.ndarray:
-    
-    '''
-    Обновляет состояние клеток в поле по заданным правилам.
-    ---
-    Параметры:\n
-    - field: np.ndarray - Исходное поле, представляющее собой матрицу чисел.\n
-    - live_cell_value: int - Значение, обозначающее "живую" клетку. (от 1 до 10)\n
-    - dead_cell_value: int - Значение, обозначающее "мертвую" клетку. (от 1 до 10)\n
-    - birth_rule: list - Множество, в котором хранится кол-во соседей, при которых "мертвая" клетка "оживает".\n
-    - survive_rule: list - Множество, в котором хранится кол-во соседей, при которых "живая" клетка остается "живой".\n
-    - neighborhood_kernel: np.ndarray - Ядро свертки, определяющее соседство клеток. Квадратная матрица нечетных размеров, где единицы обозначают клетки, учитываемые при расчете соседства, а нули - не учитываемые.\n
-    - boundary:\n
-    Правило, указывающее на способ обработки границы:\n
-    - fill -  Значения за пределами массива считаются равными фиксированному значению, указанному параметром fillvalue (по умолчанию это 0).\n
-    - wrap - Циклическое продолжение, при котором границы соединяются, как будто массив закольцован.\n
-    - symm - Значения за пределами массива симметрично отражаются от границ массива.
-    ---
-    Возвращает:\n
-    - np.ndarray - Обновленная матрица.
-    '''
-
-    # Создаем маску для клеток, которые считаются "живыми"
-    live_cell_mask = (field == live_cell_value)
-
-    # Применяем ядро свертки для подсчета соседей
-    neighbor_counts = scipy.signal.convolve2d(live_cell_mask, neighborhood_kernel, mode='same', boundary=boundary, fillvalue=fillvalue)
-
-    # Определяем маски для клеток, которые должны "родиться" и "выжить"
-    birth_mask = (field == dead_cell_value) & np.isin(neighbor_counts, birth_rule) 
-    survival_mask = (field == live_cell_value) & np.isin(neighbor_counts, survive_rule)
-
-    # Создаем копию поля для обновления
-    updated_field = field.copy()
-
-    # Обновляем состояния клеток
-    updated_field[birth_mask] = live_cell_value
-    updated_field[~survival_mask & live_cell_mask] = dead_cell_value
-
-    return updated_field
-
-
 def RunAutomaton(
                 field: np.ndarray
                 , live_cell_value: int
@@ -592,6 +544,8 @@ def RunAutomaton(
                 , neighborhood_kernel: np.ndarray
                 , boundary: str = "wrap"
                 , fillvalue: int = 0
+                , mask: np.ndarray = None
+                , mask_after_iteration: bool = True
                 ) -> np.ndarray:
     
     '''
@@ -605,22 +559,34 @@ def RunAutomaton(
     - survive_rule: list - Множество, в котором хранится кол-во соседей, при которых "живая" клетка остается "живой".\n
     - num_iterations: int - Количество итераций для выполнения клеточного автомата.\n
     - neighborhood_kernel: np.ndarray - Ядро свертки, определяющее соседство клеток. Квадратная матрица нечетных размеров, где единицы обозначают клетки, учитываемые при расчете соседства, а нули - не учитываемые.\n
-    - boundary:\n
-    Правило, указывающее на способ обработки границы:\n
-    - fill -  Значения за пределами массива считаются равными фиксированному значению, указанному параметром fillvalue (по умолчанию это 0).\n
-    - wrap - Циклическое продолжение, при котором границы соединяются, как будто массив закольцован.\n
-    - symm - Значения за пределами массива симметрично отражаются от границ массива.
+    - boundary: str\n
+        Правило, указывающее на способ обработки границы:\n
+        - fill -  Значения за пределами массива считаются равными фиксированному значению, указанному параметром fillvalue (по умолчанию это 0).\n
+        - wrap - Циклическое продолжение, при котором границы соединяются, как будто массив закольцован.\n
+        - symm - Значения за пределами массива симметрично отражаются от границ массива.
     ---
     Возвращает\n
     - np.ndarray - Матрица после выполнения всех итераций клеточного автомата.
     '''
+    if mask is None:
+        mask = np.ones(field.shape)
+
+    mask = np.isin(mask, 1)
+    field_copy = field.copy()
 
     for _ in range(num_iterations):
-        field = UpdateField(field, live_cell_value, dead_cell_value
-                           , birth_rule, survive_rule, neighborhood_kernel
-                           , boundary=boundary, fillvalue=fillvalue)
+        updated_field = field_copy.copy()
+        live_cell_mask = (field_copy == live_cell_value)
+        neighbor_counts = scipy.signal.convolve2d(live_cell_mask, neighborhood_kernel, mode='same', boundary=boundary, fillvalue=fillvalue)
+        birth_mask = (field_copy == dead_cell_value) & np.isin(neighbor_counts, birth_rule) 
+        survival_mask = (field_copy == live_cell_value) & np.isin(neighbor_counts, survive_rule)
+        updated_field[birth_mask] = live_cell_value
+        updated_field[~survival_mask & live_cell_mask] = dead_cell_value
+        if mask_after_iteration:
+            updated_field[~mask] = field_copy[~mask]
+        field_copy = updated_field.copy()
 
-    return field
+    return updated_field
 
 
 def AverageAmountOfFields(*fields) -> np.ndarray:
