@@ -394,6 +394,8 @@ def Blur(
         , iterations: int = 1
         , boundary: str = "wrap"
         , fillvalue: int = 0
+        , mask: np.ndarray = None
+        , mask_after_iteration: bool = True
         ) -> np.ndarray:
     
     '''
@@ -414,23 +416,22 @@ def Blur(
     - np.ndarray - Матрица после размытия.
     '''
 
+    if mask is None:
+        mask = np.ones(field.shape)
+    mask = (mask == 1)
+
     field_copy = field.copy()
-    
-    # Создаем маску для клеток, которые нужно размыть
     blur_mask = np.isin(field_copy, list(target_values))
-    
+
     for _ in range(iterations):
-
-        # Применяем размытие ко всему полю
         blurred_field = scipy.signal.convolve2d(field_copy, blur_type, mode='same', boundary=boundary, fillvalue=fillvalue)
-
-        # Восстанавливаем оригинальные значения на местах, которые не подлежат размытию
         blurred_field[~blur_mask] = field_copy[~blur_mask]
-
         field_copy = np.round(blurred_field).astype(dtype="int32")
+        if mask_after_iteration:
+            blurred_field[~mask] = field_copy[~mask]
+    field_copy[~mask] = field[~mask]
 
-    # Округляем значения и приводим их к целым числам
-    return np.round(blurred_field).astype(dtype="int32")
+    return field_copy
 
 
 def MedianFilter(
@@ -443,6 +444,7 @@ def MedianFilter(
         , boundary: str = "wrap"
         , cval: int = 0
         , mask: np.ndarray = None
+        , mask_after_iteration: bool = True
     ) -> np.ndarray:
     '''
     Функция, применяющая медианный фильтр к матрице с использованием маски и сохранением значений, не входящих в список target_values.
@@ -482,7 +484,7 @@ def MedianFilter(
             medfilt_field[~median_mask] = field_copy[~median_mask]
             field_copy = medfilt_field.copy()
         
-        return medfilt_field
+        return field_copy
 
     for _ in range(iterations):
         medfilt_field = field_copy.copy()
@@ -520,18 +522,17 @@ def MedianFilter(
 
                         if kernel_mask[ky + kernel_mask.shape[0]//2][kx + kernel_mask.shape[1]//2] == 1:
                             neighborhood.append(field_copy[ny, nx])
-                        # print(ky + kernel_mask.shape[0]//2, kx + kernel_mask.shape[1]//2, field_copy[ny, nx], end=" | ")
 
                 medfilt_field[y][x] = sorted(neighborhood)[len(neighborhood)//2]
-                # print('\n',f"{y = }, {x = }, {field_copy[y][x] = }, {medfilt_field[y][x] = }" )
-            #     print(f"{medfilt_field[y][x]}", end=" ")
-            # print()
-        medfilt_field[~median_mask] = field_copy[~median_mask]
-        # print(medfilt_field)
-        # print(median_mask)
+
+        if mask_after_iteration:
+            medfilt_field[~median_mask] = field_copy[~median_mask]
+
         field_copy = medfilt_field.copy()
-    
-    return medfilt_field
+
+    field_copy[~mask] = field[~mask]    
+
+    return field_copy
 
 
 def RunAutomaton(
@@ -585,8 +586,8 @@ def RunAutomaton(
         if mask_after_iteration:
             updated_field[~mask] = field_copy[~mask]
         field_copy = updated_field.copy()
-
-    return updated_field
+    field_copy[~mask] = field[~mask]
+    return field_copy
 
 
 def AverageAmountOfFields(*fields) -> np.ndarray:
